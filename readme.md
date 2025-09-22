@@ -130,8 +130,8 @@ Uses the excellent [emoji-data](https://github.com/iamcal/emoji-data) project by
 ## Generated File Structure
 
 Each `.alfredsnippets` file contains:
-- Individual JSON snippet files with UIDs like `emojipack-grinning-GRINNING_FACE`
-- `info.plist` with prefix/suffix configuration
+- Individual JSON snippet files named `{keyword}-{unicode_name}.json` (e.g., `grinning-GRINNING_FACE.json`)
+- `info.plist` with prefix/suffix configuration  
 - Clean keywords without embedded prefixes
 
 ## Development

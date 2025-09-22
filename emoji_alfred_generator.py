@@ -116,6 +116,8 @@ class EmojiSnippetGenerator:
                     name=f"{emoji_char} {name}",
                     unicode_name=unicode_name
                 )
+                # Add unicode_name to snippet for filename generation
+                snippet["_unicode_name"] = unicode_name
                 snippets.append(snippet)
 
         return snippets
@@ -143,16 +145,20 @@ class EmojiSnippetGenerator:
             # Create individual JSON files for each snippet
             json_files = []
             for snippet in snippets:
-                uid = snippet["alfredsnippet"]["uid"]
-                name = snippet["alfredsnippet"]["name"]
-                # Clean filename using unicode name
-                clean_uid = "".join(c for c in uid if c.isalnum() or c in " -_").strip()[:30]
-                clean_name = "".join(c for c in name if c.isalnum() or c in " -_")[:20]
-                filename = f"{clean_name} [{clean_uid}].json"
+                keyword = snippet["alfredsnippet"]["keyword"]
+                unicode_name = snippet.get("_unicode_name", keyword.upper())
+                
+                # Create filename with keyword and unicode_name
+                clean_unicode_name = unicode_name.strip().replace(" ", "_")
+                filename = f"{keyword}-{clean_unicode_name}.json"
 
                 file_path = temp_path / filename
+                
+                # Remove temporary _unicode_name field before saving
+                clean_snippet = {key: value for key, value in snippet.items() if key != "_unicode_name"}
+                
                 with file_path.open("w", encoding="utf-8") as f:
-                    json.dump(snippet, f, ensure_ascii=False, indent=2)
+                    json.dump(clean_snippet, f, ensure_ascii=False, indent=2)
 
                 json_files.append(filename)
 
