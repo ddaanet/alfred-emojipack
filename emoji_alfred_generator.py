@@ -7,6 +7,7 @@ Creates multiple shortcuts for emojis with multiple shortcodes.
 """
 
 import json
+import sys
 import tempfile
 import zipfile
 from pathlib import Path
@@ -189,46 +190,34 @@ class EmojiSnippetGenerator:
               help="Output filename (default: emoji-snippets.alfredsnippets)")
 @click.option("--max-emojis", "-m", type=int,
               help="Maximum number of emojis to process (for testing)")
-def main(prefix: str, suffix: str, output: str, max_emojis: int) -> None:
+@click.option("--debug", "-d", is_flag=True, help="Enable debug mode for tracebacks.")
+def main(prefix: str, suffix: str, output: str, max_emojis: int, debug: bool) -> None:
     """Generate Alfred emoji snippet pack from emoji database."""
-    set_euo_pipefail()
+    try:
+        click.echo("Fetching emoji data...")
+        generator = EmojiSnippetGenerator(prefix=prefix, suffix=suffix)
 
-    click.echo("Fetching emoji data...")
-    generator = EmojiSnippetGenerator(prefix=prefix, suffix=suffix)
+        click.echo("Generating snippets...")
+        snippets = generator.generate_snippets()
 
-    click.echo("Generating snippets...")
-    snippets = generator.generate_snippets()
+        if max_emojis:
+            snippets = snippets[:max_emojis]
 
-    if max_emojis:
-        snippets = snippets[:max_emojis]
+        click.echo(f"Generated {len(snippets)} emoji snippets")
 
-    click.echo(f"Generated {len(snippets)} emoji snippets")
+        output_path = Path(output)
+        click.echo(f"Creating Alfred snippet pack: {output_path}")
+        generator.create_alfred_snippet_pack(snippets, output_path)
 
-    output_path = Path(output)
-    click.echo(f"Creating Alfred snippet pack: {output_path}")
-    generator.create_alfred_snippet_pack(snippets, output_path)
-
-    click.echo(f"✓ Created {output_path} with {len(snippets)} emoji snippets")
-    click.echo("Import this file into Alfred via Preferences > Features > Snippets")
-
-
-def set_euo_pipefail():
-    """Set equivalent of shell 'set -euo pipefail' for error handling."""
-    import sys
-    import signal
-
-    # Exit on any exception
-    def handle_exception(exc_type, exc_value, exc_traceback):
-        if issubclass(exc_type, KeyboardInterrupt):
-            sys.__excepthook__(exc_type, exc_value, exc_traceback)
-            return
-        click.echo(f"Error: {exc_value}", err=True)
+        click.echo(f"✓ Created {output_path} with {len(snippets)} emoji snippets")
+        click.echo("Import this file into Alfred via Preferences > Features > Snippets")
+    except BrokenPipeError:
+        click.secho("Broken pipe", fg="red", bold=True, err=True)
+    except Exception as e:
+        if debug:
+            raise
+        click.echo(f"{click.style("Error:", fg="red", bold=True)} {e}", err=True)
         sys.exit(1)
-
-    sys.excepthook = handle_exception
-
-    # Handle SIGPIPE
-    signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 
 
 if __name__ == "__main__":
