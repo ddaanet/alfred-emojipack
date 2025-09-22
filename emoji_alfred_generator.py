@@ -47,8 +47,8 @@ class AlfredSnippetWithName(AlfredSnippet, total=False):
 
 class EmojiSnippetGenerator:
     def __init__(self, prefix: str = ";", suffix: str = ""):
-        self.prefix = prefix
-        self.suffix = suffix
+        self.prefix: str = prefix
+        self.suffix: str = suffix
         self.emoji_data: list[EmojiData] = []
 
     def fetch_emoji_data(self) -> list[EmojiData]:
@@ -105,7 +105,7 @@ class EmojiSnippetGenerator:
 
         # Handle multiple codepoints separated by hyphens
         codepoints = unified.split("-")
-        chars = []
+        chars: list[str] = []
 
         for cp in codepoints:
             try:
@@ -118,7 +118,7 @@ class EmojiSnippetGenerator:
     def generate_snippets(self) -> list[AlfredSnippetWithName]:
         """Generate all emoji snippets."""
         self.emoji_data = self.fetch_emoji_data()
-        snippets = []
+        snippets: list[AlfredSnippetWithName] = []
 
         for emoji in self.emoji_data:
             unified = emoji.get("unified", "")
@@ -172,7 +172,7 @@ class EmojiSnippetGenerator:
             temp_path = Path(temp_dir)
 
             # Create individual JSON files for each snippet
-            json_files = []
+            json_files: list[str] = []
             for snippet in snippets:
                 keyword = snippet["alfredsnippet"]["keyword"]
                 unicode_name = snippet.get("_unicode_name", keyword.upper())
@@ -195,7 +195,7 @@ class EmojiSnippetGenerator:
             info_plist_content = self.create_info_plist()
             info_plist_path = temp_path / "info.plist"
             with info_plist_path.open("w", encoding="utf-8") as f:
-                f.write(info_plist_content)
+                _ = f.write(info_plist_content)
 
             # Create ZIP file
             with zipfile.ZipFile(output_path, "w", zipfile.ZIP_DEFLATED) as zf:
