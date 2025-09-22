@@ -37,11 +37,11 @@ try:
         print("✗ Snippet creation failed")
         sys.exit(1)
 
-    # Check that UID uses Unicode name
-    if snippet["alfredsnippet"]["uid"] == "GRINNING FACE":
-        print("✓ Unicode name used as UID")
+    # Check that UID uses Unicode name with prefix
+    if snippet["alfredsnippet"]["uid"] == "emojipack:GRINNING FACE":
+        print("✓ Unicode name with emojipack prefix used as UID")
     else:
-        print("✗ UID generation failed")
+        print(f"✗ UID generation failed: {snippet['alfredsnippet']['uid']}")
         sys.exit(1)
 
     # Test info.plist generation

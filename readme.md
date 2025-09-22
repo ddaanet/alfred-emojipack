@@ -7,7 +7,7 @@ Generate Alfred snippet packs from freely available emoji databases with multipl
 - **Comprehensive Emoji Database**: Uses `iamcal/emoji-data` with 3,000+ emojis
 - **Multiple Shortcodes**: Creates separate snippets for each emoji shortcode (GitHub, Slack compatible)
 - **Rich Keywords**: Includes official Unicode names, categories, and all known shortcodes
-- **Predictable UIDs**: Uses Unicode names as unique identifiers for consistent imports
+- **Predictable UIDs**: Uses Unicode names as unique identifiers with `emojipack:` prefix
 - **Customizable Prefix/Suffix**: Configure snippet triggers via info.plist (default: `;` prefix)
 - **Alfred Format**: Generates proper `.alfredsnippets` files for direct import
 
@@ -20,7 +20,9 @@ Generate Alfred snippet packs from freely available emoji databases with multipl
 ## Quick Start
 
 ```bash
-# Clone or download the project files
+# Navigate to the project directory
+cd ~/code/emojipack
+
 # Make the script executable
 chmod +x run.sh
 
@@ -113,13 +115,22 @@ Uses the excellent [emoji-data](https://github.com/iamcal/emoji-data) project by
 ## Project Structure
 
 ```
-emoji-alfred-generator/
+~/code/emojipack/
 ├── emoji_alfred_generator.py    # Main generator script
 ├── test_emoji_alfred_generator.py # Test suite
-├── run.sh                       # Setup and run script
-├── pyproject.toml              # Project configuration
-└── README.md                   # Documentation
+├── simple_test_runner.py       # Self-contained tests
+├── quick_test.py               # Quick functionality test
+├── run.sh                      # Setup and run script
+├── pyproject.toml             # Project configuration
+└── README.md                  # Documentation
 ```
+
+## Generated File Structure
+
+Each `.alfredsnippets` file contains:
+- Individual JSON snippet files with UIDs like `emojipack:GRINNING FACE`
+- `info.plist` with prefix/suffix configuration
+- Clean keywords without embedded prefixes
 
 ## Development
 

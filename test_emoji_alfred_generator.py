@@ -132,7 +132,7 @@ class TestEmojiSnippetGenerator(unittest.TestCase):
         self.assertEqual(alfred_snippet["snippet"], emoji_char)
         self.assertEqual(alfred_snippet["keyword"], "grinning")  # No prefix in keyword
         self.assertEqual(alfred_snippet["name"], name)
-        self.assertEqual(alfred_snippet["uid"], unicode_name)
+        self.assertEqual(alfred_snippet["uid"], "emojipack:GRINNING FACE")
         self.assertFalse(alfred_snippet["dontautoexpand"])
 
     @patch('emoji_alfred_generator.requests.get')
@@ -162,7 +162,7 @@ class TestEmojiSnippetGenerator(unittest.TestCase):
         # Check first snippet structure
         first_snippet = snippets[0]
         self.assertIn("alfredsnippet", first_snippet)
-        self.assertTrue(first_snippet["alfredsnippet"]["keyword"].startswith(";"))
+        self.assertTrue(first_snippet["alfredsnippet"]["uid"].startswith("emojipack:"))
 
     def test_create_alfred_snippet_pack(self):
         """Test Alfred snippet pack creation."""
@@ -171,18 +171,18 @@ class TestEmojiSnippetGenerator(unittest.TestCase):
             {
                 "alfredsnippet": {
                     "snippet": "😀",
-                    "uid": "TEST-UUID-1",
+                    "uid": "emojipack:GRINNING FACE",
                     "name": "😀 Grinning Face",
-                    "keyword": ";grinning",
+                    "keyword": "grinning",
                     "dontautoexpand": False
                 }
             },
             {
                 "alfredsnippet": {
                     "snippet": "👍",
-                    "uid": "TEST-UUID-2",
+                    "uid": "emojipack:THUMBS UP SIGN",
                     "name": "👍 Thumbs Up",
-                    "keyword": ";thumbsup",
+                    "keyword": "thumbsup",
                     "dontautoexpand": False
                 }
             }
@@ -199,12 +199,15 @@ class TestEmojiSnippetGenerator(unittest.TestCase):
             # Verify it's a valid ZIP
             with zipfile.ZipFile(output_path, 'r') as zf:
                 files = zf.namelist()
-                self.assertEqual(len(files), 2)
+                self.assertGreaterEqual(len(files), 3)  # 2 snippets + info.plist
+                self.assertIn("info.plist", files)
 
                 # Check first file content
-                with zf.open(files[0]) as f:
+                json_files = [f for f in files if f.endswith('.json')]
+                with zf.open(json_files[0]) as f:
                     content = json.loads(f.read().decode('utf-8'))
                     self.assertIn("alfredsnippet", content)
+                    self.assertTrue(content["alfredsnippet"]["uid"].startswith("emojipack:"))
 
 
 class TestKeywordGeneration(unittest.TestCase):
@@ -267,7 +270,7 @@ class TestUtilityFunctions(unittest.TestCase):
 
         # Prefix/suffix handled by info.plist, not individual snippets
         self.assertEqual(snippet["alfredsnippet"]["keyword"], "grinning")
-        self.assertEqual(snippet["alfredsnippet"]["uid"], "GRINNING FACE")
+        self.assertEqual(snippet["alfredsnippet"]["uid"], "emojipack:GRINNING FACE")
 
 
 def run_tests():

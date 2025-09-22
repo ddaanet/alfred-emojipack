@@ -54,7 +54,7 @@ class EmojiSnippetGenerator:
         return {
             "alfredsnippet": {
                 "snippet": emoji_char,
-                "uid": unicode_name,
+                "uid": f"emojipack:{unicode_name}",
                 "name": name,
                 "keyword": keyword,  # No prefix/suffix - handled by info.plist
                 "dontautoexpand": False
@@ -177,7 +177,7 @@ class TestEmojiSnippetGenerator(unittest.TestCase):
         self.assertEqual(alfred_snippet["snippet"], emoji_char)
         self.assertEqual(alfred_snippet["keyword"], "grinning")  # No prefix in keyword
         self.assertEqual(alfred_snippet["name"], name)
-        self.assertEqual(alfred_snippet["uid"], unicode_name)
+        self.assertEqual(alfred_snippet["uid"], "emojipack:GRINNING FACE")
         self.assertFalse(alfred_snippet["dontautoexpand"])
 
     def test_prefix_customization(self):
@@ -188,7 +188,7 @@ class TestEmojiSnippetGenerator(unittest.TestCase):
 
         # Prefix/suffix not in individual snippets
         self.assertEqual(snippet["alfredsnippet"]["keyword"], "grinning")
-        self.assertEqual(snippet["alfredsnippet"]["uid"], "GRINNING FACE")
+        self.assertEqual(snippet["alfredsnippet"]["uid"], "emojipack:GRINNING FACE")
 
         # Check info.plist generation
         plist_content = generator.create_info_plist()
@@ -220,6 +220,68 @@ class TestInfoPlistGeneration(unittest.TestCase):
         # Should contain both prefix and suffix as colons
         colon_count = plist_content.count("<string>:</string>")
         self.assertEqual(colon_count, 2)  # One for prefix, one for suffix
+
+
+class TestKeywordGeneration(unittest.TestCase):
+    """Focused tests for keyword generation logic."""
+
+    def setUp(self):
+        self.generator = EmojiSnippetGenerator()
+
+    def test_name_word_extraction(self):
+        """Test extraction of words from emoji names."""
+        emoji = {
+            "name": "WOMAN HEALTH WORKER: MEDIUM SKIN TONE",
+            "short_names": ["woman_health_worker"]
+        }
+
+        keywords = self.generator.generate_keywords(emoji)
+
+        self.assertIn("woman", keywords)
+        self.assertIn("health", keywords)
+        self.assertIn("worker", keywords)
+        self.assertIn("medium", keywords)
+        self.assertIn("skin", keywords)
+        self.assertIn("tone", keywords)
+
+    def test_category_normalization(self):
+        """Test category name normalization."""
+        emoji = {
+            "name": "TEST",
+            "category": "Smileys & Emotion",
+            "subcategory": "face-smiling",
+            "short_names": ["test"]
+        }
+
+        keywords = self.generator.generate_keywords(emoji)
+
+        self.assertIn("smileys_&_emotion", keywords)
+        self.assertIn("face-smiling", keywords)
+
+    def test_empty_data_handling(self):
+        """Test handling of missing or empty data."""
+        emoji = {
+            "name": "",
+            "short_names": []
+        }
+
+        keywords = self.generator.generate_keywords(emoji)
+
+        # Should not crash and return empty set
+        self.assertIsInstance(keywords, set)
+
+
+class TestUtilityFunctions(unittest.TestCase):
+    """Test utility functions."""
+
+    def test_prefix_customization(self):
+        """Test custom prefix handling."""
+        generator = EmojiSnippetGenerator(prefix="!")
+
+        snippet = generator.create_snippet("😀", "grinning", "Grinning", "GRINNING FACE")
+
+        self.assertEqual(snippet["alfredsnippet"]["keyword"], "grinning")
+        self.assertEqual(snippet["alfredsnippet"]["uid"], "emojipack:GRINNING FACE")
 
 
 def run_tests():

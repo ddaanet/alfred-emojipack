@@ -56,7 +56,7 @@ class EmojiSnippetGenerator:
         return {
             "alfredsnippet": {
                 "snippet": emoji_char,
-                "uid": unicode_name,
+                "uid": f"emojipack:{unicode_name}",
                 "name": name,
                 "keyword": keyword,  # No prefix/suffix - handled by info.plist
                 "dontautoexpand": False

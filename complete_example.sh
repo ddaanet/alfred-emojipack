@@ -5,12 +5,9 @@ set -euo pipefail
 
 echo "=== Emoji Alfred Snippet Generator - Complete Example ==="
 
-# Step 1: Create project directory and files
-echo "Creating project structure..."
-mkdir -p emoji-alfred-project
-cd emoji-alfred-project
-
-# The files would be created here (main script, tests, config files)
+# Step 1: Navigate to project directory
+echo "Navigating to project directory..."
+cd ~/code/emojipack
 
 # Step 2: Setup with uv
 echo "Setting up project with uv..."
@@ -26,7 +23,7 @@ uv pip install click requests
 
 # Step 3: Run tests
 echo "Running tests..."
-uv run python -m unittest test_emoji_alfred_generator -v
+uv run python simple_test_runner.py
 
 # Step 4: Generate snippet pack with different configurations
 echo "Generating emoji snippet packs..."
@@ -82,4 +79,4 @@ echo "=== Generated File Structure ==="
 echo "Each .alfredsnippets file contains:"
 echo "  - Individual JSON files for each emoji snippet"
 echo "  - info.plist with prefix/suffix configuration"
-echo "  - UIDs based on Unicode names (e.g., 'GRINNING FACE')"
+echo "  - UIDs based on Unicode names with emojipack: prefix (e.g., 'emojipack:GRINNING FACE')"
