@@ -64,22 +64,35 @@ def generate_alfred_snippets(
         emoji_char = emoji.get("unicode", "")
         if not emoji_char:
             continue
-            
-        # Get primary shortcode
+
+        # Get primary shortcode - ensure it's a list
         shortcodes = emoji.get("shortcodes", [])
+        if isinstance(shortcodes, str):
+            shortcodes = [shortcodes]
+        elif not isinstance(shortcodes, list):
+            shortcodes = []
+
         primary_shortcode = shortcodes[0] if shortcodes else ""
 
         # Try to get additional shortcodes from shortcode data
         hexcode = emoji.get("hexcode", "")
         additional_shortcodes = shortcode_data.get(hexcode, [])
-        
+        if isinstance(additional_shortcodes, str):
+            additional_shortcodes = [additional_shortcodes]
+        elif not isinstance(additional_shortcodes, list):
+            additional_shortcodes = []
+
         # Combine all shortcodes
         all_shortcodes = list(set(shortcodes + additional_shortcodes))
-        
-        # Get name and tags
+
+        # Get name and tags - ensure tags is a list
         name = emoji.get("annotation", f"Emoji {emoji_char}")
         tags = emoji.get("tags", [])
-        
+        if isinstance(tags, str):
+            tags = [tags]
+        elif not isinstance(tags, list):
+            tags = []
+
         # Create keywords list
         keywords = all_shortcodes + tags
 
