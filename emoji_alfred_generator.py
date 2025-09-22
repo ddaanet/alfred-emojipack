@@ -11,26 +11,54 @@ import sys
 import tempfile
 import zipfile
 from pathlib import Path
-from typing import Any, cast
+from typing import TypedDict, cast
 
 import click
 import requests
+
+
+class EmojiData(TypedDict, total=False):
+    """Structure for emoji data from the API."""
+    unified: str
+    name: str
+    category: str
+    subcategory: str
+    short_names: list[str]
+
+
+class AlfredSnippetData(TypedDict):
+    """Structure for Alfred snippet metadata."""
+    snippet: str
+    uid: str
+    name: str
+    keyword: str
+    dontautoexpand: bool
+
+
+class AlfredSnippet(TypedDict):
+    """Complete snippet structure with Alfred metadata."""
+    alfredsnippet: AlfredSnippetData
+
+
+class AlfredSnippetWithName(AlfredSnippet, total=False):
+    """Snippet data with temporary metadata for processing."""
+    _unicode_name: str
 
 
 class EmojiSnippetGenerator:
     def __init__(self, prefix: str = ";", suffix: str = ""):
         self.prefix = prefix
         self.suffix = suffix
-        self.emoji_data: list[dict[str, Any]] = []
+        self.emoji_data: list[EmojiData] = []
 
-    def fetch_emoji_data(self) -> list[dict[str, Any]]:
+    def fetch_emoji_data(self) -> list[EmojiData]:
         """Fetch emoji data from iamcal/emoji-data repository."""
         url = "https://raw.githubusercontent.com/iamcal/emoji-data/master/emoji.json"
         response = requests.get(url, timeout=30)
         response.raise_for_status()
-        return cast(list[dict[str, Any]], response.json())
+        return cast(list[EmojiData], response.json())
 
-    def generate_keywords(self, emoji: dict[str, Any]) -> set[str]:
+    def generate_keywords(self, emoji: EmojiData) -> set[str]:
         """Generate keywords for an emoji based on name, category, and shortcodes."""
         keywords: set[str] = set()
 
@@ -53,7 +81,7 @@ class EmojiSnippetGenerator:
 
         return keywords
 
-    def create_snippet(self, emoji_char: str, keyword: str, name: str, unicode_name: str) -> dict[str, Any]:
+    def create_snippet(self, emoji_char: str, keyword: str, name: str, unicode_name: str) -> AlfredSnippetWithName:
         """Create a single Alfred snippet structure."""
         # Replace spaces with underscores in unicode_name for UID
         clean_unicode_name = unicode_name.replace(" ", "_")
@@ -66,7 +94,8 @@ class EmojiSnippetGenerator:
                 "name": name,
                 "keyword": keyword,  # No prefix/suffix - handled by info.plist
                 "dontautoexpand": False
-            }
+            },
+            "_unicode_name": unicode_name,
         }
 
     def unicode_to_emoji(self, unified: str) -> str:
@@ -86,7 +115,7 @@ class EmojiSnippetGenerator:
 
         return "".join(chars)
 
-    def generate_snippets(self) -> list[dict[str, Any]]:
+    def generate_snippets(self) -> list[AlfredSnippetWithName]:
         """Generate all emoji snippets."""
         self.emoji_data = self.fetch_emoji_data()
         snippets = []
@@ -118,8 +147,6 @@ class EmojiSnippetGenerator:
                     name=f"{emoji_char} {name}",
                     unicode_name=unicode_name
                 )
-                # Add unicode_name to snippet for filename generation
-                snippet["_unicode_name"] = unicode_name
                 snippets.append(snippet)
 
         return snippets
@@ -138,7 +165,7 @@ class EmojiSnippetGenerator:
 </plist>'''
         return plist_content
 
-    def create_alfred_snippet_pack(self, snippets: list[dict[str, Any]],
+    def create_alfred_snippet_pack(self, snippets: list[AlfredSnippetWithName],
                                  output_path: Path) -> None:
         """Create the .alfredsnippets file."""
         with tempfile.TemporaryDirectory() as temp_dir:
