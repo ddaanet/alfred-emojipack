@@ -14,7 +14,6 @@ Commands:
     setup       Install dependencies and setup environment
     generate    Generate emoji snippet pack
     test        Run test suite
-    quick-test  Run quick functionality test
     clean       Clean up generated files
     help        Show this help
 
@@ -29,7 +28,6 @@ Examples:
     $0 generate
     $0 generate -p ":" -s ":" -o slack-emoji.alfredsnippets
     $0 generate -p ";" -s "" -o github-emoji.alfredsnippets
-    $0 quick-test
     $0 test
 EOF
 }
@@ -101,15 +99,7 @@ generate() {
 
 run_tests() {
     echo "Running test suite..."
-
-    # Use the simple test runner to avoid import conflicts
-    uv run python simple_test_runner.py
-    echo "✓ All tests passed!"
-}
-
-quick_test() {
-    echo "Running quick functionality test..."
-    uv run python quick_test.py
+    uv run python test_runner.py
 }
 
 clean() {
@@ -118,7 +108,6 @@ clean() {
     find . -name "*.alfredsnippets" -delete 2>/dev/null || true
     find . -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
     find . -name "*.pyc" -delete 2>/dev/null || true
-    rm -f test_runner.py 2>/dev/null || true
 
     if [[ -d ".venv" ]]; then
         rm -rf .venv
@@ -141,10 +130,6 @@ main() {
         test)
             shift
             run_tests "$@"
-            ;;
-        quick-test)
-            shift
-            quick_test "$@"
             ;;
         clean)
             shift

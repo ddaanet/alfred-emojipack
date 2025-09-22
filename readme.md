@@ -61,7 +61,11 @@ Creates `emoji-snippets.alfredsnippets` with default `;` prefix.
 ### Testing
 
 ```bash
+# Run complete test suite (functionality + unit tests)
 ./run.sh test
+
+# Or run directly
+python test_runner.py
 ```
 
 ### Cleanup
@@ -117,9 +121,7 @@ Uses the excellent [emoji-data](https://github.com/iamcal/emoji-data) project by
 ```
 ~/code/emojipack/
 ├── emoji_alfred_generator.py    # Main generator script
-├── test_emoji_alfred_generator.py # Test suite
-├── simple_test_runner.py       # Self-contained tests
-├── quick_test.py               # Quick functionality test
+├── test_runner.py              # Unified test suite
 ├── run.sh                      # Setup and run script
 ├── pyproject.toml             # Project configuration
 └── README.md                  # Documentation

@@ -23,7 +23,7 @@ uv pip install click requests
 
 # Step 3: Run tests
 echo "Running tests..."
-uv run python simple_test_runner.py
+uv run python test_runner.py
 
 # Step 4: Generate snippet pack with different configurations
 echo "Generating emoji snippet packs..."
