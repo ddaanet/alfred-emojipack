@@ -4,19 +4,48 @@ Test suite for Emoji Alfred Snippet Generator
 """
 
 import json
+import sys
 import tempfile
 import unittest
 import zipfile
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-# Import the main module (ensure emoji_alfred_generator.py is in the same directory)
-try:
-    from emoji_alfred_generator import EmojiSnippetGenerator
-except ImportError:
-    import sys
-    sys.path.append('.')
-    from emoji_alfred_generator import EmojiSnippetGenerator
+# Handle import of the main module
+def import_generator_module():
+    """Import the generator module handling various scenarios."""
+    # Try direct import first
+    try:
+        import emoji_alfred_generator
+        return emoji_alfred_generator.EmojiSnippetGenerator
+    except (ImportError, AttributeError):
+        pass
+
+    # Try importing as a module
+    try:
+        sys.path.insert(0, '.')
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("emoji_alfred_generator", "./emoji_alfred_generator.py")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module.EmojiSnippetGenerator
+    except Exception:
+        pass
+
+    # Fallback: execute the file directly and extract the class
+    try:
+        with open('./emoji_alfred_generator.py', 'r') as f:
+            code = f.read()
+
+        # Create a new namespace and execute the code
+        namespace = {}
+        exec(code, namespace)
+        return namespace['EmojiSnippetGenerator']
+    except Exception as e:
+        raise ImportError(f"Could not import EmojiSnippetGenerator: {e}")
+
+# Import the class
+EmojiSnippetGenerator = import_generator_module()
 
 
 class TestEmojiSnippetGenerator(unittest.TestCase):
@@ -24,7 +53,7 @@ class TestEmojiSnippetGenerator(unittest.TestCase):
 
     def setUp(self):
         """Set up test fixtures."""
-        self.generator = EmojiSnippetGenerator(prefix=";")
+        self.generator = EmojiSnippetGenerator(prefix=";", suffix="")
         self.sample_emoji_data = [
             {
                 "name": "GRINNING FACE",
@@ -100,7 +129,7 @@ class TestEmojiSnippetGenerator(unittest.TestCase):
         alfred_snippet = snippet["alfredsnippet"]
 
         self.assertEqual(alfred_snippet["snippet"], emoji_char)
-        self.assertEqual(alfred_snippet["keyword"], ";grinning")
+        self.assertEqual(alfred_snippet["keyword"], "grinning")  # No prefix in keyword
         self.assertEqual(alfred_snippet["name"], name)
         self.assertIsInstance(alfred_snippet["uid"], str)
         self.assertFalse(alfred_snippet["dontautoexpand"])
@@ -231,11 +260,12 @@ class TestUtilityFunctions(unittest.TestCase):
 
     def test_prefix_customization(self):
         """Test custom prefix handling."""
-        generator = EmojiSnippetGenerator(prefix="!")
+        generator = EmojiSnippetGenerator(prefix="!", suffix="?")
 
         snippet = generator.create_snippet("😀", "grinning", "Grinning")
 
-        self.assertEqual(snippet["alfredsnippet"]["keyword"], "!grinning")
+        # Prefix/suffix handled by info.plist, not individual snippets
+        self.assertEqual(snippet["alfredsnippet"]["keyword"], "grinning")
 
 
 def run_tests():

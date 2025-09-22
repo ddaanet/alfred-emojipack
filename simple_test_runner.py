@@ -15,8 +15,9 @@ import requests
 
 # Inline the EmojiSnippetGenerator class to avoid import issues
 class EmojiSnippetGenerator:
-    def __init__(self, prefix: str = ";"):
+    def __init__(self, prefix: str = ";", suffix: str = ""):
         self.prefix = prefix
+        self.suffix = suffix
         self.emoji_data = []
 
     def fetch_emoji_data(self):
@@ -56,10 +57,24 @@ class EmojiSnippetGenerator:
                 "snippet": emoji_char,
                 "uid": str(uuid4()).upper(),
                 "name": name,
-                "keyword": f"{self.prefix}{keyword}",
+                "keyword": keyword,  # No prefix/suffix - handled by info.plist
                 "dontautoexpand": False
             }
         }
+
+    def create_info_plist(self) -> str:
+        """Create info.plist content with prefix and suffix settings."""
+        plist_content = f'''<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+\t<key>snippetkeywordprefix</key>
+\t<string>{self.prefix}</string>
+\t<key>snippetkeywordsuffix</key>
+\t<string>{self.suffix}</string>
+</dict>
+</plist>'''
+        return plist_content
 
     def unicode_to_emoji(self, unified: str) -> str:
         """Convert unified Unicode codepoint to emoji character."""
@@ -160,18 +175,50 @@ class TestEmojiSnippetGenerator(unittest.TestCase):
         alfred_snippet = snippet["alfredsnippet"]
 
         self.assertEqual(alfred_snippet["snippet"], emoji_char)
-        self.assertEqual(alfred_snippet["keyword"], ";grinning")
+        self.assertEqual(alfred_snippet["keyword"], "grinning")  # No prefix in keyword
         self.assertEqual(alfred_snippet["name"], name)
         self.assertIsInstance(alfred_snippet["uid"], str)
         self.assertFalse(alfred_snippet["dontautoexpand"])
 
     def test_prefix_customization(self):
         """Test custom prefix handling."""
-        generator = EmojiSnippetGenerator(prefix="!")
+        generator = EmojiSnippetGenerator(prefix="!", suffix="?")
 
         snippet = generator.create_snippet("😀", "grinning", "Grinning")
 
-        self.assertEqual(snippet["alfredsnippet"]["keyword"], "!grinning")
+        # Prefix/suffix not in individual snippets
+        self.assertEqual(snippet["alfredsnippet"]["keyword"], "grinning")
+
+        # Check info.plist generation
+        plist_content = generator.create_info_plist()
+        self.assertIn("<string>!</string>", plist_content)
+        self.assertIn("<string>?</string>", plist_content)
+        self.assertIn("snippetkeywordprefix", plist_content)
+        self.assertIn("snippetkeywordsuffix", plist_content)
+
+
+class TestInfoPlistGeneration(unittest.TestCase):
+    """Test info.plist file generation."""
+
+    def test_info_plist_format(self):
+        """Test info.plist XML format."""
+        generator = EmojiSnippetGenerator(prefix=";", suffix="")
+        plist_content = generator.create_info_plist()
+
+        # Check XML structure
+        self.assertTrue(plist_content.startswith('<?xml version="1.0"'))
+        self.assertIn("snippetkeywordprefix", plist_content)
+        self.assertIn("snippetkeywordsuffix", plist_content)
+        self.assertIn("<string>;</string>", plist_content)
+
+    def test_custom_prefix_suffix(self):
+        """Test custom prefix and suffix in info.plist."""
+        generator = EmojiSnippetGenerator(prefix=":", suffix=":")
+        plist_content = generator.create_info_plist()
+
+        # Should contain both prefix and suffix as colons
+        colon_count = plist_content.count("<string>:</string>")
+        self.assertEqual(colon_count, 2)  # One for prefix, one for suffix
 
 
 def run_tests():

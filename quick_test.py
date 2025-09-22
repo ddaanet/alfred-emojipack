@@ -31,10 +31,18 @@ try:
 
     # Test snippet creation
     snippet = generator.create_snippet("😀", "grinning", "Grinning Face")
-    if snippet["alfredsnippet"]["keyword"] == ";grinning":
+    if snippet["alfredsnippet"]["keyword"] == "grinning":  # No prefix in keyword
         print("✓ Snippet creation works")
     else:
         print("✗ Snippet creation failed")
+        sys.exit(1)
+
+    # Test info.plist generation
+    plist_content = generator.create_info_plist()
+    if "snippetkeywordprefix" in plist_content and "<string>;</string>" in plist_content:
+        print("✓ Info.plist generation works")
+    else:
+        print("✗ Info.plist generation failed")
         sys.exit(1)
 
     # Test with limited emojis (don't fetch full dataset)
@@ -43,10 +51,8 @@ try:
     print("  python emoji_alfred_generator.py --max-emojis 10 -o test.alfredsnippets")
 
 except ImportError as e:
-    raise
     print(f"✗ Import failed: {e}")
     sys.exit(1)
 except Exception as e:
-    raise
     print(f"✗ Test failed: {e}")
     sys.exit(1)

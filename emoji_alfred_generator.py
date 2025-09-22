@@ -17,8 +17,9 @@ from typing import Dict, List, Set, Any
 
 
 class EmojiSnippetGenerator:
-    def __init__(self, prefix: str = ";"):
+    def __init__(self, prefix: str = ";", suffix: str = ""):
         self.prefix = prefix
+        self.suffix = suffix
         self.emoji_data = []
 
     def fetch_emoji_data(self) -> List[Dict[str, Any]]:
@@ -58,7 +59,7 @@ class EmojiSnippetGenerator:
                 "snippet": emoji_char,
                 "uid": str(uuid4()).upper(),
                 "name": name,
-                "keyword": f"{self.prefix}{keyword}",
+                "keyword": keyword,  # No prefix/suffix - handled by info.plist
                 "dontautoexpand": False
             }
         }
@@ -114,6 +115,20 @@ class EmojiSnippetGenerator:
 
         return snippets
 
+    def create_info_plist(self) -> str:
+        """Create info.plist content with prefix and suffix settings."""
+        plist_content = f'''<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+\t<key>snippetkeywordprefix</key>
+\t<string>{self.prefix}</string>
+\t<key>snippetkeywordsuffix</key>
+\t<string>{self.suffix}</string>
+</dict>
+</plist>'''
+        return plist_content
+
     def create_alfred_snippet_pack(self, snippets: List[Dict[str, Any]],
                                  output_path: Path) -> None:
         """Create the .alfredsnippets file."""
@@ -135,27 +150,39 @@ class EmojiSnippetGenerator:
 
                 json_files.append(filename)
 
+            # Create info.plist file
+            info_plist_content = self.create_info_plist()
+            info_plist_path = temp_path / "info.plist"
+            with info_plist_path.open("w", encoding="utf-8") as f:
+                f.write(info_plist_content)
+
             # Create ZIP file
             with zipfile.ZipFile(output_path, "w", zipfile.ZIP_DEFLATED) as zf:
+                # Add all JSON snippet files
                 for json_file in json_files:
                     file_path = temp_path / json_file
                     zf.write(file_path, json_file)
+
+                # Add info.plist
+                zf.write(info_plist_path, "info.plist")
 
 
 @click.command()
 @click.option("--prefix", "-p", default=";",
               help="Prefix for snippet keywords (default: ';')")
+@click.option("--suffix", "-s", default="",
+              help="Suffix for snippet keywords (default: '')")
 @click.option("--output", "-o", type=click.Path(),
               default="emoji-snippets.alfredsnippets",
               help="Output filename (default: emoji-snippets.alfredsnippets)")
 @click.option("--max-emojis", "-m", type=int,
               help="Maximum number of emojis to process (for testing)")
-def main(prefix: str, output: str, max_emojis: int) -> None:
+def main(prefix: str, suffix: str, output: str, max_emojis: int) -> None:
     """Generate Alfred emoji snippet pack from emoji database."""
     set_euo_pipefail()
 
     click.echo("Fetching emoji data...")
-    generator = EmojiSnippetGenerator(prefix=prefix)
+    generator = EmojiSnippetGenerator(prefix=prefix, suffix=suffix)
 
     click.echo("Generating snippets...")
     snippets = generator.generate_snippets()

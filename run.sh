@@ -20,13 +20,15 @@ Commands:
 
 Generate Options:
     -p, --prefix PREFIX     Snippet keyword prefix (default: ';')
+    -s, --suffix SUFFIX     Snippet keyword suffix (default: '')
     -o, --output FILE       Output filename (default: emoji-snippets.alfredsnippets)
     -m, --max-emojis N      Limit number of emojis for testing
 
 Examples:
     $0 setup
     $0 generate
-    $0 generate -p ":" -o custom-emoji.alfredsnippets
+    $0 generate -p ":" -s ":" -o slack-emoji.alfredsnippets
+    $0 generate -p ";" -s "" -o github-emoji.alfredsnippets
     $0 quick-test
     $0 test
 EOF
@@ -54,6 +56,7 @@ setup() {
 
 generate() {
     local prefix=";"
+    local suffix=""
     local output="emoji-snippets.alfredsnippets"
     local max_emojis=""
 
@@ -62,6 +65,10 @@ generate() {
         case $1 in
             -p|--prefix)
                 prefix="$2"
+                shift 2
+                ;;
+            -s|--suffix)
+                suffix="$2"
                 shift 2
                 ;;
             -o|--output)
@@ -82,7 +89,7 @@ generate() {
 
     echo "Generating emoji snippet pack..."
 
-    local cmd=(uv run python emoji_alfred_generator.py --prefix "$prefix" --output "$output")
+    local cmd=(uv run python emoji_alfred_generator.py --prefix "$prefix" --suffix "$suffix" --output "$output")
     if [[ -n "$max_emojis" ]]; then
         cmd+=(--max-emojis "$max_emojis")
     fi
