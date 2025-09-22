@@ -11,9 +11,10 @@ import sys
 import tempfile
 import zipfile
 from pathlib import Path
+from typing import Any, Dict, List, Set
+
 import click
 import requests
-from typing import Dict, List, Set, Any
 
 
 class EmojiSnippetGenerator:
