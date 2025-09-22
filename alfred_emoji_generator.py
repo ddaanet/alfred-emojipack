@@ -58,6 +58,8 @@ def sanitize_filename(text: str, max_length: int = 50) -> str:
     """Sanitize text for use in filename."""
     # Replace problematic characters
     sanitized = "".join(c for c in text if c.isalnum() or c in " -_.")
+    # Strip leading/trailing whitespace
+    sanitized = sanitized.strip()
     # Truncate if too long
     if len(sanitized) > max_length:
         sanitized = sanitized[:max_length].rstrip()
