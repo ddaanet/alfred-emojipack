@@ -4,6 +4,8 @@ Alfred Emoji Snippet Pack Generator
 
 Fetches emoji data from Emojibase and creates Alfred snippet packs
 with Unicode names, shortcodes, and keywords for searchability.
+
+Creates proper .alfredsnippets format (ZIP file with individual JSON files).
 """
 
 import json
@@ -11,6 +13,9 @@ import click
 import requests
 from pathlib import Path
 import uuid
+import zipfile
+import tempfile
+import shutil
 from typing import Dict, List, Any
 import unittest
 
@@ -35,18 +40,28 @@ def fetch_shortcodes(locale: str = "en", preset: str = "github") -> Dict[str, Li
         return {}
 
 
-def create_alfred_snippet(emoji: str, shortcode: str, name: str, keywords: List[str], uid: str) -> Dict[str, Any]:
-    """Create an Alfred snippet object."""
-    keyword_str = " ".join(keywords) if keywords else ""
+def create_alfred_snippet_json(emoji: str, shortcode: str, name: str, keywords: List[str], uid: str) -> Dict[str, Any]:
+    """Create an Alfred snippet JSON object."""
+    keyword_str = " ".join(keywords) if keywords else shortcode
 
     return {
         "alfredsnippet": {
             "snippet": emoji,
             "uid": uid,
             "name": name,
-            "keyword": f"{shortcode} {keyword_str}".strip()
+            "keyword": keyword_str
         }
     }
+
+
+def sanitize_filename(text: str, max_length: int = 50) -> str:
+    """Sanitize text for use in filename."""
+    # Replace problematic characters
+    sanitized = "".join(c for c in text if c.isalnum() or c in " -_.")
+    # Truncate if too long
+    if len(sanitized) > max_length:
+        sanitized = sanitized[:max_length].rstrip()
+    return sanitized
 
 
 def generate_alfred_snippets(
@@ -72,7 +87,7 @@ def generate_alfred_snippets(
         elif not isinstance(shortcodes, list):
             shortcodes = []
 
-        primary_shortcode = shortcodes[0] if shortcodes else ""
+        primary_shortcode = shortcodes[0] if shortcodes else f"emoji_{i}"
 
         # Try to get additional shortcodes from shortcode data
         hexcode = emoji.get("hexcode", "")
@@ -93,23 +108,48 @@ def generate_alfred_snippets(
         elif not isinstance(tags, list):
             tags = []
 
-        # Create keywords list
+        # Create keywords list (shortcodes + tags)
         keywords = all_shortcodes + tags
 
         # Generate unique ID
-        uid = str(uuid.uuid4())
+        uid = str(uuid.uuid4()).upper()
 
-        snippet = create_alfred_snippet(
-            emoji=emoji_char,
-            shortcode=primary_shortcode,
-            name=name,
-            keywords=keywords,
-            uid=uid
-        )
+        # Create snippet data
+        snippet_data = {
+            "json": create_alfred_snippet_json(
+                emoji=emoji_char,
+                shortcode=primary_shortcode,
+                name=name,
+                keywords=keywords,
+                uid=uid
+            ),
+            "filename": f"{sanitize_filename(name)} [{uid}].json"
+        }
 
-        snippets.append(snippet)
+        snippets.append(snippet_data)
 
     return snippets
+
+
+def create_alfredsnippets_file(snippets: List[Dict[str, Any]], output_path: Path, icon_path: Path = None):
+    """Create a .alfredsnippets file (ZIP format) with individual snippet JSON files."""
+    with tempfile.TemporaryDirectory() as temp_dir:
+        temp_path = Path(temp_dir)
+
+        # Create individual JSON files for each snippet
+        for snippet in snippets:
+            json_file_path = temp_path / snippet["filename"]
+            with open(json_file_path, 'w', encoding='utf-8') as f:
+                json.dump(snippet["json"], f, ensure_ascii=False, indent=2)
+
+        # Add icon if provided
+        if icon_path and icon_path.exists():
+            shutil.copy2(icon_path, temp_path / "icon.png")
+
+        # Create ZIP file with .alfredsnippets extension
+        with zipfile.ZipFile(output_path, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+            for file_path in temp_path.iterdir():
+                zip_file.write(file_path, file_path.name)
 
 
 @click.command()
@@ -117,9 +157,10 @@ def generate_alfred_snippets(
 @click.option("--shortcodes", "-s", default="github", help="Shortcode preset (github, cldr, emojibase)")
 @click.option("--output", "-o", type=click.Path(), help="Output file path")
 @click.option("--max-emojis", "-m", type=int, help="Maximum number of emojis to include")
-@click.option("--bundle-name", "-n", default="Emoji Pack", help="Alfred snippet bundle name")
+@click.option("--bundle-name", "-n", default="Emoji Pack", help="Alfred snippet bundle name (for reference)")
+@click.option("--icon", "-i", type=click.Path(exists=True), help="Icon file path (80x80 PNG)")
 @click.option("--debug", "-d", is_flag=True, help="Enable debug output")
-def main(locale: str, shortcodes: str, output: str, max_emojis: int, bundle_name: str, debug: bool):
+def main(locale: str, shortcodes: str, output: str, max_emojis: int, bundle_name: str, icon: str, debug: bool):
     """Generate Alfred emoji snippet pack from Emojibase data."""
     click.echo(f"Fetching emoji data for locale: {locale}")
 
@@ -139,27 +180,25 @@ def main(locale: str, shortcodes: str, output: str, max_emojis: int, bundle_name
         # Generate snippets
         snippets = generate_alfred_snippets(emoji_data, shortcode_data, max_emojis)
 
-        # Create Alfred bundle structure
-        bundle = {
-            "alfredsnippet": {
-                "description": f"Emoji snippets generated from Emojibase ({locale})",
-                "name": bundle_name,
-                "snippets": [snippet["alfredsnippet"] for snippet in snippets]
-            }
-        }
+        click.echo(f"Generated {len(snippets)} emoji snippets")
+
+        if debug and snippets:
+            click.echo(f"Sample snippet: {snippets[0]['filename']}")
+            click.echo(f"Sample JSON: {json.dumps(snippets[0]['json'], indent=2)}")
 
         # Determine output path
         if not output:
             output = f"emoji-{locale}-{shortcodes}.alfredsnippets"
 
-        # Write output
         output_path = Path(output)
-        with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(bundle, f, ensure_ascii=False, indent=2)
+        icon_path = Path(icon) if icon else None
 
-        click.echo(f"Generated {len(snippets)} emoji snippets")
-        click.echo(f"Saved to: {output_path}")
-        click.echo(f"Import this file into Alfred via Snippets > Import")
+        # Create Alfred snippets file
+        create_alfredsnippets_file(snippets, output_path, icon_path)
+
+        click.echo(f"Created Alfred snippet pack: {output_path}")
+        click.echo(f"Double-click the file to install in Alfred, or go to:")
+        click.echo(f"Alfred Preferences > Features > Snippets > Import")
 
     except requests.RequestException as e:
         click.echo(f"Error fetching data: {e}", err=True)
@@ -189,19 +228,30 @@ class TestEmojiGenerator(unittest.TestCase):
             "1F600": ["grinning", "smile"]
         }
 
-    def test_create_alfred_snippet(self):
-        """Test Alfred snippet creation."""
-        snippet = create_alfred_snippet(
+    def test_create_alfred_snippet_json(self):
+        """Test Alfred snippet JSON creation."""
+        snippet = create_alfred_snippet_json(
             emoji="😀",
             shortcode="grinning",
             name="grinning face",
             keywords=["face", "smile"],
-            uid="test-uid"
+            uid="TEST-UID"
         )
 
         self.assertEqual(snippet["alfredsnippet"]["snippet"], "😀")
         self.assertEqual(snippet["alfredsnippet"]["name"], "grinning face")
-        self.assertIn("grinning", snippet["alfredsnippet"]["keyword"])
+        self.assertEqual(snippet["alfredsnippet"]["uid"], "TEST-UID")
+        self.assertIn("face", snippet["alfredsnippet"]["keyword"])
+
+    def test_sanitize_filename(self):
+        """Test filename sanitization."""
+        result = sanitize_filename("grinning face 😀")
+        self.assertEqual(result, "grinning face")
+
+        # Test long filename truncation
+        long_name = "a" * 60
+        result = sanitize_filename(long_name, max_length=50)
+        self.assertEqual(len(result), 50)
 
     def test_generate_alfred_snippets(self):
         """Test snippet generation."""
@@ -212,7 +262,8 @@ class TestEmojiGenerator(unittest.TestCase):
         )
 
         self.assertEqual(len(snippets), 1)
-        self.assertEqual(snippets[0]["alfredsnippet"]["snippet"], "😀")
+        self.assertEqual(snippets[0]["json"]["alfredsnippet"]["snippet"], "😀")
+        self.assertIn("grinning face", snippets[0]["filename"])
 
     def test_max_emojis_limit(self):
         """Test emoji limit functionality."""
