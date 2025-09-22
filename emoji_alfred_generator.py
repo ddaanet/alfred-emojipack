@@ -11,7 +11,7 @@ import sys
 import tempfile
 import zipfile
 from pathlib import Path
-from typing import Any, Dict, List, Set
+from typing import Any, Dict, List, Set, cast
 
 import click
 import requests
@@ -21,18 +21,18 @@ class EmojiSnippetGenerator:
     def __init__(self, prefix: str = ";", suffix: str = ""):
         self.prefix = prefix
         self.suffix = suffix
-        self.emoji_data = []
+        self.emoji_data: List[Dict[str, Any]] = []
 
     def fetch_emoji_data(self) -> List[Dict[str, Any]]:
         """Fetch emoji data from iamcal/emoji-data repository."""
         url = "https://raw.githubusercontent.com/iamcal/emoji-data/master/emoji.json"
         response = requests.get(url, timeout=30)
         response.raise_for_status()
-        return response.json()
+        return cast(List[Dict[str, Any]], response.json())
 
     def generate_keywords(self, emoji: Dict[str, Any]) -> Set[str]:
         """Generate keywords for an emoji based on name, category, and shortcodes."""
-        keywords = set()
+        keywords: Set[str] = set()
 
         # Add official name words (lowercased, no punctuation)
         name_words = emoji.get("name", "").lower().replace("_", " ").split()

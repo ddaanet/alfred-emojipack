@@ -58,6 +58,11 @@ warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
 
+[dependency-groups]
+dev = [
+    "types-requests>=2.32.0.20241016",
+]
+
 [project.urls]
 Homepage = "https://github.com/example/emoji-alfred-generator"
 Repository = "https://github.com/example/emoji-alfred-generator"
