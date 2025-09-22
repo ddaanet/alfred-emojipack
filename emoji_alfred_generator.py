@@ -1,247 +1,196 @@
 #!/usr/bin/env python3
 """
-Test suite for Emoji Alfred Snippet Generator
+Emoji Alfred Snippet Pack Generator
+
+Generates Alfred snippet packs from freely available emoji databases.
+Creates multiple shortcuts for emojis with multiple shortcodes.
 """
 
 import json
 import tempfile
-import unittest
 import zipfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock
-
-# Import the main module (ensure emoji_alfred_generator.py is in the same directory)
-try:
-    from emoji_alfred_generator import EmojiSnippetGenerator
-except ImportError:
-    import sys
-    sys.path.append('.')
-    from emoji_alfred_generator import EmojiSnippetGenerator
+from uuid import uuid4
+import click
+import requests
+from typing import Dict, List, Set, Any
 
 
-class TestEmojiSnippetGenerator(unittest.TestCase):
-    """Test cases for EmojiSnippetGenerator."""
+class EmojiSnippetGenerator:
+    def __init__(self, prefix: str = ";"):
+        self.prefix = prefix
+        self.emoji_data = []
 
-    def setUp(self):
-        """Set up test fixtures."""
-        self.generator = EmojiSnippetGenerator(prefix=";")
-        self.sample_emoji_data = [
-            {
-                "name": "GRINNING FACE",
-                "unified": "1F600",
-                "short_name": "grinning",
-                "short_names": ["grinning", "grinning_face"],
-                "category": "Smileys & Emotion",
-                "subcategory": "face-smiling"
-            },
-            {
-                "name": "THUMBS UP SIGN",
-                "unified": "1F44D",
-                "short_name": "thumbsup",
-                "short_names": ["thumbsup", "+1", "thumbs_up"],
-                "category": "People & Body",
-                "subcategory": "hand-fingers-closed"
+    def fetch_emoji_data(self) -> List[Dict[str, Any]]:
+        """Fetch emoji data from iamcal/emoji-data repository."""
+        url = "https://raw.githubusercontent.com/iamcal/emoji-data/master/emoji.json"
+        response = requests.get(url, timeout=30)
+        response.raise_for_status()
+        return response.json()
+
+    def generate_keywords(self, emoji: Dict[str, Any]) -> Set[str]:
+        """Generate keywords for an emoji based on name, category, and shortcodes."""
+        keywords = set()
+
+        # Add official name words (lowercased, no punctuation)
+        name_words = emoji.get("name", "").lower().replace("_", " ").split()
+        keywords.update(word.strip(".,!?:;") for word in name_words if word.strip(".,!?:;"))
+
+        # Add category and subcategory
+        category = emoji.get("category", "")
+        if category:
+            keywords.add(category.lower().replace(" ", "_"))
+
+        subcategory = emoji.get("subcategory", "")
+        if subcategory:
+            keywords.add(subcategory.lower().replace(" ", "_"))
+
+        # Add all shortcodes as keywords
+        short_names = emoji.get("short_names", [])
+        keywords.update(short_names)
+
+        return keywords
+
+    def create_snippet(self, emoji_char: str, keyword: str, name: str) -> Dict[str, Any]:
+        """Create a single Alfred snippet structure."""
+        return {
+            "alfredsnippet": {
+                "snippet": emoji_char,
+                "uid": str(uuid4()).upper(),
+                "name": name,
+                "keyword": f"{self.prefix}{keyword}",
+                "dontautoexpand": False
             }
-        ]
+        }
 
-    def test_unicode_to_emoji_basic(self):
-        """Test basic Unicode to emoji conversion."""
-        # Test simple codepoint
-        result = self.generator.unicode_to_emoji("1F600")
-        self.assertEqual(result, "😀")
+    def unicode_to_emoji(self, unified: str) -> str:
+        """Convert unified Unicode codepoint to emoji character."""
+        if not unified:
+            return ""
 
-        # Test compound codepoint
-        result = self.generator.unicode_to_emoji("1F44D")
-        self.assertEqual(result, "👍")
+        # Handle multiple codepoints separated by hyphens
+        codepoints = unified.split("-")
+        chars = []
 
-    def test_unicode_to_emoji_complex(self):
-        """Test complex Unicode sequences."""
-        # Test sequence with multiple codepoints
-        result = self.generator.unicode_to_emoji("1F468-200D-1F4BB")
-        self.assertEqual(result, "👨‍💻")  # man technologist
+        for cp in codepoints:
+            try:
+                chars.append(chr(int(cp, 16)))
+            except (ValueError, OverflowError):
+                return ""
 
-        # Test invalid codepoint
-        result = self.generator.unicode_to_emoji("INVALID")
-        self.assertEqual(result, "")
+        return "".join(chars)
 
-        # Test empty input
-        result = self.generator.unicode_to_emoji("")
-        self.assertEqual(result, "")
+    def generate_snippets(self) -> List[Dict[str, Any]]:
+        """Generate all emoji snippets."""
+        self.emoji_data = self.fetch_emoji_data()
+        snippets = []
 
-    def test_generate_keywords(self):
-        """Test keyword generation."""
-        emoji = self.sample_emoji_data[0]
-        keywords = self.generator.generate_keywords(emoji)
+        for emoji in self.emoji_data:
+            unified = emoji.get("unified", "")
+            if not unified:
+                continue
 
-        # Should include name words
-        self.assertIn("grinning", keywords)
-        self.assertIn("face", keywords)
+            emoji_char = self.unicode_to_emoji(unified)
+            if not emoji_char:
+                continue
 
-        # Should include category
-        self.assertIn("smileys_&_emotion", keywords)
+            # Generate keywords for this emoji
+            keywords = self.generate_keywords(emoji)
 
-        # Should include subcategory
-        self.assertIn("face-smiling", keywords)
+            # Get shortcodes
+            short_names = emoji.get("short_names", [])
+            if not short_names:
+                continue
 
-        # Should include all shortcodes
-        self.assertIn("grinning", keywords)
-        self.assertIn("grinning_face", keywords)
+            # Create a snippet for each shortcode
+            for short_name in short_names:
+                name = emoji.get("name", short_name).title()
+                snippet = self.create_snippet(
+                    emoji_char=emoji_char,
+                    keyword=short_name,
+                    name=f"{emoji_char} {name}"
+                )
+                snippets.append(snippet)
 
-    def test_create_snippet(self):
-        """Test snippet creation."""
-        emoji_char = "😀"
-        keyword = "grinning"
-        name = "😀 Grinning Face"
+        return snippets
 
-        snippet = self.generator.create_snippet(emoji_char, keyword, name)
-
-        # Check structure
-        self.assertIn("alfredsnippet", snippet)
-        alfred_snippet = snippet["alfredsnippet"]
-
-        self.assertEqual(alfred_snippet["snippet"], emoji_char)
-        self.assertEqual(alfred_snippet["keyword"], ";grinning")
-        self.assertEqual(alfred_snippet["name"], name)
-        self.assertIsInstance(alfred_snippet["uid"], str)
-        self.assertFalse(alfred_snippet["dontautoexpand"])
-
-    @patch('emoji_alfred_generator.requests.get')
-    def test_fetch_emoji_data(self, mock_get):
-        """Test emoji data fetching."""
-        mock_response = MagicMock()
-        mock_response.json.return_value = self.sample_emoji_data
-        mock_response.raise_for_status.return_value = None
-        mock_get.return_value = mock_response
-
-        result = self.generator.fetch_emoji_data()
-
-        self.assertEqual(result, self.sample_emoji_data)
-        mock_get.assert_called_once()
-
-    def test_generate_snippets_integration(self):
-        """Test snippet generation integration."""
-        # Mock the data fetch
-        self.generator.emoji_data = self.sample_emoji_data
-        with patch.object(self.generator, 'fetch_emoji_data', return_value=self.sample_emoji_data):
-            snippets = self.generator.generate_snippets()
-
-        # Should generate multiple snippets (one per shortcode)
-        expected_count = sum(len(emoji.get("short_names", [])) for emoji in self.sample_emoji_data)
-        self.assertEqual(len(snippets), expected_count)
-
-        # Check first snippet structure
-        first_snippet = snippets[0]
-        self.assertIn("alfredsnippet", first_snippet)
-        self.assertTrue(first_snippet["alfredsnippet"]["keyword"].startswith(";"))
-
-    def test_create_alfred_snippet_pack(self):
-        """Test Alfred snippet pack creation."""
-        # Create sample snippets
-        snippets = [
-            {
-                "alfredsnippet": {
-                    "snippet": "😀",
-                    "uid": "TEST-UUID-1",
-                    "name": "😀 Grinning Face",
-                    "keyword": ";grinning",
-                    "dontautoexpand": False
-                }
-            },
-            {
-                "alfredsnippet": {
-                    "snippet": "👍",
-                    "uid": "TEST-UUID-2",
-                    "name": "👍 Thumbs Up",
-                    "keyword": ";thumbsup",
-                    "dontautoexpand": False
-                }
-            }
-        ]
-
+    def create_alfred_snippet_pack(self, snippets: List[Dict[str, Any]],
+                                 output_path: Path) -> None:
+        """Create the .alfredsnippets file."""
         with tempfile.TemporaryDirectory() as temp_dir:
-            output_path = Path(temp_dir) / "test.alfredsnippets"
+            temp_path = Path(temp_dir)
 
-            self.generator.create_alfred_snippet_pack(snippets, output_path)
+            # Create individual JSON files for each snippet
+            json_files = []
+            for snippet in snippets:
+                uid = snippet["alfredsnippet"]["uid"]
+                name = snippet["alfredsnippet"]["name"]
+                # Clean filename
+                clean_name = "".join(c for c in name if c.isalnum() or c in " -_")[:50]
+                filename = f"{clean_name} [{uid}].json"
 
-            # Verify file was created
-            self.assertTrue(output_path.exists())
+                file_path = temp_path / filename
+                with file_path.open("w", encoding="utf-8") as f:
+                    json.dump(snippet, f, ensure_ascii=False, indent=2)
 
-            # Verify it's a valid ZIP
-            with zipfile.ZipFile(output_path, 'r') as zf:
-                files = zf.namelist()
-                self.assertEqual(len(files), 2)
+                json_files.append(filename)
 
-                # Check first file content
-                with zf.open(files[0]) as f:
-                    content = json.loads(f.read().decode('utf-8'))
-                    self.assertIn("alfredsnippet", content)
-
-
-class TestKeywordGeneration(unittest.TestCase):
-    """Focused tests for keyword generation logic."""
-
-    def setUp(self):
-        self.generator = EmojiSnippetGenerator()
-
-    def test_name_word_extraction(self):
-        """Test extraction of words from emoji names."""
-        emoji = {
-            "name": "WOMAN HEALTH WORKER: MEDIUM SKIN TONE",
-            "short_names": ["woman_health_worker"]
-        }
-
-        keywords = self.generator.generate_keywords(emoji)
-
-        self.assertIn("woman", keywords)
-        self.assertIn("health", keywords)
-        self.assertIn("worker", keywords)
-        self.assertIn("medium", keywords)
-        self.assertIn("skin", keywords)
-        self.assertIn("tone", keywords)
-
-    def test_category_normalization(self):
-        """Test category name normalization."""
-        emoji = {
-            "name": "TEST",
-            "category": "Smileys & Emotion",
-            "subcategory": "face-smiling",
-            "short_names": ["test"]
-        }
-
-        keywords = self.generator.generate_keywords(emoji)
-
-        self.assertIn("smileys_&_emotion", keywords)
-        self.assertIn("face-smiling", keywords)
-
-    def test_empty_data_handling(self):
-        """Test handling of missing or empty data."""
-        emoji = {
-            "name": "",
-            "short_names": []
-        }
-
-        keywords = self.generator.generate_keywords(emoji)
-
-        # Should not crash and return empty set
-        self.assertIsInstance(keywords, set)
+            # Create ZIP file
+            with zipfile.ZipFile(output_path, "w", zipfile.ZIP_DEFLATED) as zf:
+                for json_file in json_files:
+                    file_path = temp_path / json_file
+                    zf.write(file_path, json_file)
 
 
-class TestUtilityFunctions(unittest.TestCase):
-    """Test utility functions."""
+@click.command()
+@click.option("--prefix", "-p", default=";",
+              help="Prefix for snippet keywords (default: ';')")
+@click.option("--output", "-o", type=click.Path(),
+              default="emoji-snippets.alfredsnippets",
+              help="Output filename (default: emoji-snippets.alfredsnippets)")
+@click.option("--max-emojis", "-m", type=int,
+              help="Maximum number of emojis to process (for testing)")
+def main(prefix: str, output: str, max_emojis: int) -> None:
+    """Generate Alfred emoji snippet pack from emoji database."""
+    set_euo_pipefail()
 
-    def test_prefix_customization(self):
-        """Test custom prefix handling."""
-        generator = EmojiSnippetGenerator(prefix="!")
+    click.echo("Fetching emoji data...")
+    generator = EmojiSnippetGenerator(prefix=prefix)
 
-        snippet = generator.create_snippet("😀", "grinning", "Grinning")
+    click.echo("Generating snippets...")
+    snippets = generator.generate_snippets()
 
-        self.assertEqual(snippet["alfredsnippet"]["keyword"], "!grinning")
+    if max_emojis:
+        snippets = snippets[:max_emojis]
+
+    click.echo(f"Generated {len(snippets)} emoji snippets")
+
+    output_path = Path(output)
+    click.echo(f"Creating Alfred snippet pack: {output_path}")
+    generator.create_alfred_snippet_pack(snippets, output_path)
+
+    click.echo(f"✓ Created {output_path} with {len(snippets)} emoji snippets")
+    click.echo("Import this file into Alfred via Preferences > Features > Snippets")
 
 
-def run_tests():
-    """Run all tests."""
-    unittest.main(verbosity=2)
+def set_euo_pipefail():
+    """Set equivalent of shell 'set -euo pipefail' for error handling."""
+    import sys
+    import signal
+
+    # Exit on any exception
+    def handle_exception(exc_type, exc_value, exc_traceback):
+        if issubclass(exc_type, KeyboardInterrupt):
+            sys.__excepthook__(exc_type, exc_value, exc_traceback)
+            return
+        click.echo(f"Error: {exc_value}", err=True)
+        sys.exit(1)
+
+    sys.excepthook = handle_exception
+
+    # Handle SIGPIPE
+    signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 
 
 if __name__ == "__main__":
-    run_tests()
+    main()
