@@ -54,11 +54,11 @@ class EmojiSnippetGenerator:
         return keywords
 
     def create_snippet(self, emoji_char: str, keyword: str, name: str, unicode_name: str) -> Dict[str, Any]:
-        """Create a single Alfred snippet structure."""        
+        """Create a single Alfred snippet structure."""
         # Replace spaces with underscores in unicode_name for UID
         clean_unicode_name = unicode_name.replace(" ", "_")
         uid = f"emojipack-{keyword}-{clean_unicode_name}"
-        
+
         return {
             "alfredsnippet": {
                 "snippet": emoji_char,
@@ -149,16 +149,16 @@ class EmojiSnippetGenerator:
             for snippet in snippets:
                 keyword = snippet["alfredsnippet"]["keyword"]
                 unicode_name = snippet.get("_unicode_name", keyword.upper())
-                
+
                 # Create filename with keyword and unicode_name
                 clean_unicode_name = unicode_name.strip().replace(" ", "_")
                 filename = f"{keyword}-{clean_unicode_name}.json"
 
                 file_path = temp_path / filename
-                
+
                 # Remove temporary _unicode_name field before saving
                 clean_snippet = {key: value for key, value in snippet.items() if key != "_unicode_name"}
-                
+
                 with file_path.open("w", encoding="utf-8") as f:
                     json.dump(clean_snippet, f, ensure_ascii=False, indent=2)
 
