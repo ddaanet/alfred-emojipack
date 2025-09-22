@@ -1,96 +1,134 @@
-# Alfred Emoji Snippet Pack Generator
+# Emoji Alfred Snippet Generator
 
-Generate comprehensive emoji snippet packs for Alfred using the **Emojibase** database - the most up-to-date and feature-rich emoji database available.
+Generate Alfred snippet packs from freely available emoji databases with multiple shortcodes and comprehensive keyword support.
 
 ## Features
 
-✅ **Official Unicode names**  
-✅ **Multiple shortcode sets** (GitHub, Slack/CLDR, emojibase)  
-✅ **Rich keywords and tags** for searchability  
-✅ **Up-to-date emoji data** (Emoji 16.0 support)  
-✅ **Configurable output** (locale, shortcode style, size limits)  
+- **Comprehensive Emoji Database**: Uses `iamcal/emoji-data` with 3,000+ emojis
+- **Multiple Shortcodes**: Creates separate snippets for each emoji shortcode (GitHub, Slack compatible)
+- **Rich Keywords**: Includes official Unicode names, categories, and all known shortcodes
+- **Customizable Prefix**: Configure snippet triggers (default: `;`)
+- **Alfred Format**: Generates proper `.alfredsnippets` files for direct import
+
+## Requirements
+
+- Python 3.8+
+- [uv](https://github.com/astral-sh/uv) package manager
+- macOS with Alfred Powerpack
 
 ## Quick Start
 
 ```bash
-# Install dependencies
-./setup_emoji_packs.sh install
+# Clone or download the project files
+# Make the script executable
+chmod +x run.sh
 
-# Generate emoji packs
-./setup_emoji_packs.sh generate
+# Setup environment and dependencies
+./run.sh setup
 
-# Import .alfredsnippets files into Alfred:
-# Alfred Preferences > Features > Snippets > Import
+# Generate emoji snippet pack
+./run.sh generate
+
+# Import emoji-snippets.alfredsnippets into Alfred
 ```
 
-## Data Sources
+## Usage
 
-### Primary: Emojibase (Recommended)
-- **Repository**: https://github.com/milesj/emojibase
-- **Features**: Complete Unicode data, multiple shortcode sets, keywords
-- **CDN Access**: `https://cdn.jsdelivr.net/npm/emojibase-data@latest/`
-
-### Alternative Options:
-- **emoji-data** (iamcal): GitHub/Slack style shortcodes
-- **emojilib** (muan): Rich keyword database  
-- **unicode-emoji-json** (muan): Official Unicode data
-
-## Usage Examples
+### Basic Generation
 
 ```bash
-# Generate with specific options
-python3 alfred_emoji_generator.py \
-  --locale en \
-  --shortcodes github \
-  --max-emojis 500 \
-  --output custom-emoji.alfredsnippets
-
-# Different shortcode styles
-python3 alfred_emoji_generator.py --shortcodes cldr    # Slack/CLDR style
-python3 alfred_emoji_generator.py --shortcodes github  # GitHub style
+./run.sh generate
 ```
 
-## Output Format
+Creates `emoji-snippets.alfredsnippets` with default `;` prefix.
 
-Generated Alfred snippets include:
-- **Snippet**: The actual emoji character 
-- **Keyword**: Primary shortcode + additional keywords
-- **Name**: Official Unicode annotation
-- **UID**: Unique identifier for Alfred
-
-Example snippet in Alfred:
-- **Keyword**: `grinning face smile happy`
-- **Snippet**: `😀`
-- **Name**: `grinning face`
-
-## Testing
+### Custom Configuration
 
 ```bash
-# Run all tests
-./test_runner.sh
+# Use colon prefix like Slack
+./run.sh generate -p ":" -o slack-emoji.alfredsnippets
 
-# Run specific test suites
-./test_runner.sh python
-./test_runner.sh shell
-./test_runner.sh perf
+# Limit emojis for testing
+./run.sh generate -m 100 -o test-emoji.alfredsnippets
 ```
 
-## File Structure
+### Testing
 
+```bash
+./run.sh test
 ```
-alfred-emoji-generator/
-├── alfred_emoji_generator.py    # Main generator script
-├── setup_emoji_packs.sh        # Setup and generation script
-├── test_runner.sh               # Test suite
-└── README.md                    # This file
+
+### Cleanup
+
+```bash
+./run.sh clean
 ```
 
 ## Alfred Integration
 
-1. Run the generator to create `.alfredsnippets` files
-2. Open Alfred Preferences
-3. Go to Features > Snippets
-4. Click the '+' button and select "Import"
-5. Choose your generated `.alfredsnippets` file
+1. Generate the snippet pack: `./run.sh generate`
+2. Open Alfred Preferences → Features → Snippets
+3. Click the gear icon → Import
+4. Select the generated `.alfredsnippets` file
+5. Enable auto-expansion if desired
 
-Now you can type emoji shortcodes in any app and Alfred will expand them to emoji characters!
+## Example Snippets
+
+| Trigger | Emoji | Name |
+|---------|-------|------|
+| `;grinning` | 😀 | Grinning Face |
+| `;+1` | 👍 | Thumbs Up Sign |
+| `;thumbsup` | 👍 | Thumbs Up Sign |
+| `;heart` | ❤️ | Red Heart |
+
+## Keywords and Search
+
+Each emoji includes keywords from:
+- **Official Unicode name**: "grinning", "face", "thumbs", "up"
+- **Categories**: "smileys_emotion", "people_body"
+- **All shortcodes**: "grinning", "grinning_face", "+1", "thumbsup"
+
+## Data Source
+
+Uses the excellent [emoji-data](https://github.com/iamcal/emoji-data) project by Cal Henderson, which provides:
+- Complete Unicode emoji coverage
+- Multiple platform shortcodes (GitHub, Slack, etc.)
+- Comprehensive metadata and categorization
+- Regular updates with new Unicode releases
+
+## Project Structure
+
+```
+emoji-alfred-generator/
+├── emoji_alfred_generator.py    # Main generator script
+├── test_emoji_alfred_generator.py # Test suite
+├── run.sh                       # Setup and run script
+├── pyproject.toml              # Project configuration
+└── README.md                   # Documentation
+```
+
+## Development
+
+```bash
+# Setup development environment
+./run.sh setup
+
+# Run tests
+./run.sh test
+
+# Generate with debug limiting
+./run.sh generate -m 50
+
+# Manual execution
+uv run python emoji_alfred_generator.py --help
+```
+
+## License
+
+MIT License - see project files for details.
+
+## Credits
+
+- [emoji-data](https://github.com/iamcal/emoji-data) by Cal Henderson
+- [Alfred](https://www.alfredapp.com/) by Running with Crayons
+- Emoji artwork by respective platform vendors

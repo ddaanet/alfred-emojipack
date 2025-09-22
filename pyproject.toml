@@ -1,0 +1,64 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "emoji-alfred-generator"
+version = "1.0.0"
+description = "Generate Alfred emoji snippet packs from freely available emoji databases"
+authors = [
+    {name = "Generated", email = "generated@example.com"}
+]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "click>=8.0",
+    "requests>=2.25",
+]
+keywords = ["alfred", "emoji", "snippets", "productivity"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: MacOS :: MacOS X",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Utilities",
+]
+
+[project.scripts]
+emoji-alfred-generator = "emoji_alfred_generator:main"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov",
+    "black",
+    "isort",
+    "mypy",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py38']
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+
+[project.urls]
+Homepage = "https://github.com/example/emoji-alfred-generator"
+Repository = "https://github.com/example/emoji-alfred-generator"
+Issues = "https://github.com/example/emoji-alfred-generator/issues"
