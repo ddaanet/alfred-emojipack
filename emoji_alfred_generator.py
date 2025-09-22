@@ -10,7 +10,6 @@ import json
 import tempfile
 import zipfile
 from pathlib import Path
-from uuid import uuid4
 import click
 import requests
 from typing import Dict, List, Set, Any
@@ -52,12 +51,12 @@ class EmojiSnippetGenerator:
 
         return keywords
 
-    def create_snippet(self, emoji_char: str, keyword: str, name: str) -> Dict[str, Any]:
+    def create_snippet(self, emoji_char: str, keyword: str, name: str, unicode_name: str) -> Dict[str, Any]:
         """Create a single Alfred snippet structure."""
         return {
             "alfredsnippet": {
                 "snippet": emoji_char,
-                "uid": str(uuid4()).upper(),
+                "uid": unicode_name,
                 "name": name,
                 "keyword": keyword,  # No prefix/suffix - handled by info.plist
                 "dontautoexpand": False
@@ -106,10 +105,12 @@ class EmojiSnippetGenerator:
             # Create a snippet for each shortcode
             for short_name in short_names:
                 name = emoji.get("name", short_name).title()
+                unicode_name = emoji.get("name", short_name)
                 snippet = self.create_snippet(
                     emoji_char=emoji_char,
                     keyword=short_name,
-                    name=f"{emoji_char} {name}"
+                    name=f"{emoji_char} {name}",
+                    unicode_name=unicode_name
                 )
                 snippets.append(snippet)
 
@@ -140,9 +141,10 @@ class EmojiSnippetGenerator:
             for snippet in snippets:
                 uid = snippet["alfredsnippet"]["uid"]
                 name = snippet["alfredsnippet"]["name"]
-                # Clean filename
-                clean_name = "".join(c for c in name if c.isalnum() or c in " -_")[:50]
-                filename = f"{clean_name} [{uid}].json"
+                # Clean filename using unicode name
+                clean_uid = "".join(c for c in uid if c.isalnum() or c in " -_").strip()[:30]
+                clean_name = "".join(c for c in name if c.isalnum() or c in " -_")[:20]
+                filename = f"{clean_name} [{clean_uid}].json"
 
                 file_path = temp_path / filename
                 with file_path.open("w", encoding="utf-8") as f:

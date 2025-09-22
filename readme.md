@@ -7,6 +7,7 @@ Generate Alfred snippet packs from freely available emoji databases with multipl
 - **Comprehensive Emoji Database**: Uses `iamcal/emoji-data` with 3,000+ emojis
 - **Multiple Shortcodes**: Creates separate snippets for each emoji shortcode (GitHub, Slack compatible)
 - **Rich Keywords**: Includes official Unicode names, categories, and all known shortcodes
+- **Predictable UIDs**: Uses Unicode names as unique identifiers for consistent imports
 - **Customizable Prefix/Suffix**: Configure snippet triggers via info.plist (default: `;` prefix)
 - **Alfred Format**: Generates proper `.alfredsnippets` files for direct import
 

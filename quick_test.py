@@ -30,11 +30,18 @@ try:
         sys.exit(1)
 
     # Test snippet creation
-    snippet = generator.create_snippet("😀", "grinning", "Grinning Face")
+    snippet = generator.create_snippet("😀", "grinning", "Grinning Face", "GRINNING FACE")
     if snippet["alfredsnippet"]["keyword"] == "grinning":  # No prefix in keyword
         print("✓ Snippet creation works")
     else:
         print("✗ Snippet creation failed")
+        sys.exit(1)
+
+    # Check that UID uses Unicode name
+    if snippet["alfredsnippet"]["uid"] == "GRINNING FACE":
+        print("✓ Unicode name used as UID")
+    else:
+        print("✗ UID generation failed")
         sys.exit(1)
 
     # Test info.plist generation

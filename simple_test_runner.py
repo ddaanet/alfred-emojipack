@@ -9,7 +9,6 @@ import unittest
 import zipfile
 from pathlib import Path
 from unittest.mock import patch, MagicMock
-from uuid import uuid4
 import requests
 
 
@@ -50,12 +49,12 @@ class EmojiSnippetGenerator:
 
         return keywords
 
-    def create_snippet(self, emoji_char: str, keyword: str, name: str):
+    def create_snippet(self, emoji_char: str, keyword: str, name: str, unicode_name: str):
         """Create a single Alfred snippet structure."""
         return {
             "alfredsnippet": {
                 "snippet": emoji_char,
-                "uid": str(uuid4()).upper(),
+                "uid": unicode_name,
                 "name": name,
                 "keyword": keyword,  # No prefix/suffix - handled by info.plist
                 "dontautoexpand": False
@@ -167,8 +166,9 @@ class TestEmojiSnippetGenerator(unittest.TestCase):
         emoji_char = "😀"
         keyword = "grinning"
         name = "😀 Grinning Face"
+        unicode_name = "GRINNING FACE"
 
-        snippet = self.generator.create_snippet(emoji_char, keyword, name)
+        snippet = self.generator.create_snippet(emoji_char, keyword, name, unicode_name)
 
         # Check structure
         self.assertIn("alfredsnippet", snippet)
@@ -177,17 +177,18 @@ class TestEmojiSnippetGenerator(unittest.TestCase):
         self.assertEqual(alfred_snippet["snippet"], emoji_char)
         self.assertEqual(alfred_snippet["keyword"], "grinning")  # No prefix in keyword
         self.assertEqual(alfred_snippet["name"], name)
-        self.assertIsInstance(alfred_snippet["uid"], str)
+        self.assertEqual(alfred_snippet["uid"], unicode_name)
         self.assertFalse(alfred_snippet["dontautoexpand"])
 
     def test_prefix_customization(self):
         """Test custom prefix handling."""
         generator = EmojiSnippetGenerator(prefix="!", suffix="?")
 
-        snippet = generator.create_snippet("😀", "grinning", "Grinning")
+        snippet = generator.create_snippet("😀", "grinning", "Grinning", "GRINNING FACE")
 
         # Prefix/suffix not in individual snippets
         self.assertEqual(snippet["alfredsnippet"]["keyword"], "grinning")
+        self.assertEqual(snippet["alfredsnippet"]["uid"], "GRINNING FACE")
 
         # Check info.plist generation
         plist_content = generator.create_info_plist()

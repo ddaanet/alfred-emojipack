@@ -121,8 +121,9 @@ class TestEmojiSnippetGenerator(unittest.TestCase):
         emoji_char = "😀"
         keyword = "grinning"
         name = "😀 Grinning Face"
+        unicode_name = "GRINNING FACE"
 
-        snippet = self.generator.create_snippet(emoji_char, keyword, name)
+        snippet = self.generator.create_snippet(emoji_char, keyword, name, unicode_name)
 
         # Check structure
         self.assertIn("alfredsnippet", snippet)
@@ -131,7 +132,7 @@ class TestEmojiSnippetGenerator(unittest.TestCase):
         self.assertEqual(alfred_snippet["snippet"], emoji_char)
         self.assertEqual(alfred_snippet["keyword"], "grinning")  # No prefix in keyword
         self.assertEqual(alfred_snippet["name"], name)
-        self.assertIsInstance(alfred_snippet["uid"], str)
+        self.assertEqual(alfred_snippet["uid"], unicode_name)
         self.assertFalse(alfred_snippet["dontautoexpand"])
 
     @patch('emoji_alfred_generator.requests.get')
@@ -262,10 +263,11 @@ class TestUtilityFunctions(unittest.TestCase):
         """Test custom prefix handling."""
         generator = EmojiSnippetGenerator(prefix="!", suffix="?")
 
-        snippet = generator.create_snippet("😀", "grinning", "Grinning")
+        snippet = generator.create_snippet("😀", "grinning", "Grinning", "GRINNING FACE")
 
         # Prefix/suffix handled by info.plist, not individual snippets
         self.assertEqual(snippet["alfredsnippet"]["keyword"], "grinning")
+        self.assertEqual(snippet["alfredsnippet"]["uid"], "GRINNING FACE")
 
 
 def run_tests():
