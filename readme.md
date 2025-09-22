@@ -7,7 +7,7 @@ Generate Alfred snippet packs from freely available emoji databases with multipl
 - **Comprehensive Emoji Database**: Uses `iamcal/emoji-data` with 3,000+ emojis
 - **Multiple Shortcodes**: Creates separate snippets for each emoji shortcode (GitHub, Slack compatible)
 - **Rich Keywords**: Includes official Unicode names, categories, and all known shortcodes
-- **Predictable UIDs**: Uses Unicode names as unique identifiers with `emojipack:` prefix
+- **Predictable UIDs**: Uses format `emojipack-{keyword}-{unicode_name}` with spaces replaced by underscores
 - **Customizable Prefix/Suffix**: Configure snippet triggers via info.plist (default: `;` prefix)
 - **Alfred Format**: Generates proper `.alfredsnippets` files for direct import
 
@@ -130,7 +130,7 @@ Uses the excellent [emoji-data](https://github.com/iamcal/emoji-data) project by
 ## Generated File Structure
 
 Each `.alfredsnippets` file contains:
-- Individual JSON snippet files with UIDs like `emojipack:GRINNING FACE`
+- Individual JSON snippet files with UIDs like `emojipack-grinning-GRINNING_FACE`
 - `info.plist` with prefix/suffix configuration
 - Clean keywords without embedded prefixes
 

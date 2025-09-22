@@ -52,11 +52,15 @@ class EmojiSnippetGenerator:
         return keywords
 
     def create_snippet(self, emoji_char: str, keyword: str, name: str, unicode_name: str) -> Dict[str, Any]:
-        """Create a single Alfred snippet structure."""
+        """Create a single Alfred snippet structure."""        
+        # Replace spaces with underscores in unicode_name for UID
+        clean_unicode_name = unicode_name.replace(" ", "_")
+        uid = f"emojipack-{keyword}-{clean_unicode_name}"
+        
         return {
             "alfredsnippet": {
                 "snippet": emoji_char,
-                "uid": f"emojipack:{unicode_name}",
+                "uid": uid,
                 "name": name,
                 "keyword": keyword,  # No prefix/suffix - handled by info.plist
                 "dontautoexpand": False

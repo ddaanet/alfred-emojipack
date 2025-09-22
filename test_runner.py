@@ -60,7 +60,7 @@ class TestEmojiGenerator(unittest.TestCase):
         self.assertEqual(alfred_snippet["snippet"], "😀")
         self.assertEqual(alfred_snippet["keyword"], "grinning")
         self.assertEqual(alfred_snippet["name"], "😀 Grinning Face")
-        self.assertEqual(alfred_snippet["uid"], "emojipack:GRINNING FACE")
+        self.assertEqual(alfred_snippet["uid"], "emojipack-grinning-GRINNING_FACE")
         self.assertFalse(alfred_snippet["dontautoexpand"])
 
     def test_keyword_generation(self):
@@ -144,7 +144,7 @@ def run_functionality_test():
         assert emoji_char == "😀", f"Unicode conversion failed: {emoji_char}"
 
         snippet = generator.create_snippet("😀", "grinning", "😀 Grinning Face", "GRINNING FACE")
-        assert snippet["alfredsnippet"]["uid"] == "emojipack:GRINNING FACE", "UID format incorrect"
+        assert snippet["alfredsnippet"]["uid"] == "emojipack-grinning-GRINNING_FACE", "UID format incorrect"
         assert snippet["alfredsnippet"]["keyword"] == "grinning", "Keyword format incorrect"
 
         plist = generator.create_info_plist()
