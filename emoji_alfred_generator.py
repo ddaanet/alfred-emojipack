@@ -11,7 +11,7 @@ import sys
 import tempfile
 import zipfile
 from pathlib import Path
-from typing import Any, Dict, List, Set, cast
+from typing import Any, cast
 
 import click
 import requests
@@ -21,18 +21,18 @@ class EmojiSnippetGenerator:
     def __init__(self, prefix: str = ";", suffix: str = ""):
         self.prefix = prefix
         self.suffix = suffix
-        self.emoji_data: List[Dict[str, Any]] = []
+        self.emoji_data: list[dict[str, Any]] = []
 
-    def fetch_emoji_data(self) -> List[Dict[str, Any]]:
+    def fetch_emoji_data(self) -> list[dict[str, Any]]:
         """Fetch emoji data from iamcal/emoji-data repository."""
         url = "https://raw.githubusercontent.com/iamcal/emoji-data/master/emoji.json"
         response = requests.get(url, timeout=30)
         response.raise_for_status()
-        return cast(List[Dict[str, Any]], response.json())
+        return cast(list[dict[str, Any]], response.json())
 
-    def generate_keywords(self, emoji: Dict[str, Any]) -> Set[str]:
+    def generate_keywords(self, emoji: dict[str, Any]) -> set[str]:
         """Generate keywords for an emoji based on name, category, and shortcodes."""
-        keywords: Set[str] = set()
+        keywords: set[str] = set()
 
         # Add official name words (lowercased, no punctuation)
         name_words = emoji.get("name", "").lower().replace("_", " ").split()
@@ -53,7 +53,7 @@ class EmojiSnippetGenerator:
 
         return keywords
 
-    def create_snippet(self, emoji_char: str, keyword: str, name: str, unicode_name: str) -> Dict[str, Any]:
+    def create_snippet(self, emoji_char: str, keyword: str, name: str, unicode_name: str) -> dict[str, Any]:
         """Create a single Alfred snippet structure."""
         # Replace spaces with underscores in unicode_name for UID
         clean_unicode_name = unicode_name.replace(" ", "_")
@@ -86,7 +86,7 @@ class EmojiSnippetGenerator:
 
         return "".join(chars)
 
-    def generate_snippets(self) -> List[Dict[str, Any]]:
+    def generate_snippets(self) -> list[dict[str, Any]]:
         """Generate all emoji snippets."""
         self.emoji_data = self.fetch_emoji_data()
         snippets = []
@@ -138,7 +138,7 @@ class EmojiSnippetGenerator:
 </plist>'''
         return plist_content
 
-    def create_alfred_snippet_pack(self, snippets: List[Dict[str, Any]],
+    def create_alfred_snippet_pack(self, snippets: list[dict[str, Any]],
                                  output_path: Path) -> None:
         """Create the .alfredsnippets file."""
         with tempfile.TemporaryDirectory() as temp_dir:
