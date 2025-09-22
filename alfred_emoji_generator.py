@@ -105,7 +105,8 @@ def generate_alfred_snippets(
 @click.option("--output", "-o", type=click.Path(), help="Output file path")
 @click.option("--max-emojis", "-m", type=int, help="Maximum number of emojis to include")
 @click.option("--bundle-name", "-n", default="Emoji Pack", help="Alfred snippet bundle name")
-def main(locale: str, shortcodes: str, output: str, max_emojis: int, bundle_name: str):
+@click.option("--debug", "-d", is_flag=True, help="Enable debug output")
+def main(locale: str, shortcodes: str, output: str, max_emojis: int, bundle_name: str, debug: bool):
     """Generate Alfred emoji snippet pack from Emojibase data."""
     click.echo(f"Fetching emoji data for locale: {locale}")
 
@@ -115,7 +116,13 @@ def main(locale: str, shortcodes: str, output: str, max_emojis: int, bundle_name
         shortcode_data = fetch_shortcodes(locale, shortcodes)
 
         click.echo(f"Fetched {len(emoji_data)} emojis")
-        
+
+        if debug and emoji_data:
+            click.echo(f"Sample emoji data: {emoji_data[0]}")
+            if shortcode_data:
+                sample_key = next(iter(shortcode_data.keys()))
+                click.echo(f"Sample shortcode data: {sample_key} -> {shortcode_data[sample_key]}")
+
         # Generate snippets
         snippets = generate_alfred_snippets(emoji_data, shortcode_data, max_emojis)
 
@@ -146,6 +153,9 @@ def main(locale: str, shortcodes: str, output: str, max_emojis: int, bundle_name
         raise click.Abort()
     except Exception as e:
         click.echo(f"Error: {e}", err=True)
+        if debug:
+            import traceback
+            traceback.print_exc()
         raise click.Abort()
 
 
