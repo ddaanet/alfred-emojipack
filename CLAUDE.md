@@ -130,7 +130,6 @@ Examples:
 
 ### Development
 
-- `pytest>=7.0`: Testing framework
 - `autopep8`: Code formatting
 - `isort`: Import sorting
 - `mypy`: Type checking

@@ -36,7 +36,6 @@ emoji-alfred-generator = "emoji_alfred_generator:main"
 multi_line_output = 3
 
 [tool.mypy]
-modules = "emoji_alfred_generator"
 python_version = "3.12"
 warn_return_any = true
 warn_unused_configs = true
@@ -44,8 +43,6 @@ disallow_untyped_defs = true
 
 [dependency-groups]
 dev = [
-    "pytest>=7.0",
-    "pytest-cov",
     "autopep8",
     "isort",
     "mypy",
