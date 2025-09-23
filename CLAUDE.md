@@ -120,7 +120,7 @@ Examples:
 
 ### Development
 - `pytest>=7.0`: Testing framework
-- `black`: Code formatting
+- `autopep8`: Code formatting
 - `isort`: Import sorting
 - `mypy`: Type checking
 - `types-requests`: Type stubs
@@ -149,7 +149,7 @@ uv run mypy emoji_alfred_generator.py
 - Python 3.9+ requirement
 - Click + requests dependencies
 - MyPy type checking configuration
-- Black code formatting (88 char line length)
+- autopep8 code formatting
 
 ### Generated Alfred Files
 - Individual JSON snippets: `{keyword}-{unicode_name}.json`

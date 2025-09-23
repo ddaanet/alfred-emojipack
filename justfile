@@ -19,7 +19,7 @@ typecheck: setup
     uv run mypy emoji_alfred_generator.py
 
 format: setup
-    uv run black *.py && uv run isort *.py
+    uv run autopep8 --in-place *.py && uv run isort *.py
 
 lint: typecheck format
     @echo "✓ Done"

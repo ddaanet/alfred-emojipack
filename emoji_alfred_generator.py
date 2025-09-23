@@ -147,7 +147,7 @@ class EmojiSnippetGenerator:
             """).strip()
 
     def create_alfred_snippet_pack(self, snippets: list[AlfredSnippetWithName],
-                                 output_path: Path) -> None:
+                                   output_path: Path) -> None:
         """Create the .alfredsnippets file."""
         # Create ZIP file directly using writestr
         with zipfile.ZipFile(output_path, "w", zipfile.ZIP_DEFLATED) as zf:
@@ -161,10 +161,12 @@ class EmojiSnippetGenerator:
                 filename = f"{keyword}-{clean_unicode_name}.json"
 
                 # Remove temporary _unicode_name field before saving
-                clean_snippet = {key: value for key, value in snippet.items() if key != "_unicode_name"}
+                clean_snippet = {
+                    key: value for key, value in snippet.items() if key != "_unicode_name"}
 
                 # Create JSON content and write directly to zip
-                json_content = json.dumps(clean_snippet, ensure_ascii=False, indent=2)
+                json_content = json.dumps(
+                    clean_snippet, ensure_ascii=False, indent=2)
                 zf.writestr(filename, json_content)
 
             # Create and add info.plist file
@@ -201,14 +203,17 @@ def main(prefix: str, suffix: str, output: str, max_emojis: int, debug: bool) ->
         click.echo(f"Creating Alfred snippet pack: {output_path}")
         generator.create_alfred_snippet_pack(snippets, output_path)
 
-        click.echo(f"✓ Created {output_path} with {len(snippets)} emoji snippets")
-        click.echo("Import this file into Alfred via Preferences > Features > Snippets")
+        click.echo(
+            f"✓ Created {output_path} with {len(snippets)} emoji snippets")
+        click.echo(
+            "Import this file into Alfred via Preferences > Features > Snippets")
     except BrokenPipeError:
         click.secho("Broken pipe", fg="red", bold=True, err=True)
     except Exception as e:
         if debug:
             raise
-        click.echo(f"{click.style("Error:", fg="red", bold=True)} {e}", err=True)
+        click.echo(
+            f"{click.style("Error:", fg="red", bold=True)} {e}", err=True)
         sys.exit(1)
 
 

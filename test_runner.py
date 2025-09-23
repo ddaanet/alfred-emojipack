@@ -8,7 +8,8 @@ import tempfile
 import unittest
 import zipfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
 import requests
 
 from emoji_alfred_generator import EmojiSnippetGenerator
@@ -46,7 +47,8 @@ class TestEmojiGenerator(unittest.TestCase):
         self.assertEqual(self.generator.unicode_to_emoji("1F44D"), "👍")
 
         # Complex sequences
-        self.assertEqual(self.generator.unicode_to_emoji("1F468-200D-1F4BB"), "👨‍💻")
+        self.assertEqual(self.generator.unicode_to_emoji(
+            "1F468-200D-1F4BB"), "👨‍💻")
 
         # Edge cases
         self.assertEqual(self.generator.unicode_to_emoji(""), "")
@@ -54,13 +56,15 @@ class TestEmojiGenerator(unittest.TestCase):
 
     def test_snippet_creation(self):
         """Test snippet structure and UID format."""
-        snippet = self.generator.create_snippet("😀", "grinning", "😀 Grinning Face", "GRINNING FACE")
+        snippet = self.generator.create_snippet(
+            "😀", "grinning", "😀 Grinning Face", "GRINNING FACE")
 
         alfred_snippet = snippet["alfredsnippet"]
         self.assertEqual(alfred_snippet["snippet"], "😀")
         self.assertEqual(alfred_snippet["keyword"], "grinning")
         self.assertEqual(alfred_snippet["name"], "😀 Grinning Face")
-        self.assertEqual(alfred_snippet["uid"], "emojipack-grinning-GRINNING_FACE")
+        self.assertEqual(alfred_snippet["uid"],
+                         "emojipack-grinning-GRINNING_FACE")
         self.assertFalse(alfred_snippet["dontautoexpand"])
 
     def test_keyword_generation(self):
@@ -88,7 +92,8 @@ class TestEmojiGenerator(unittest.TestCase):
             "category": "Symbols"
         }
         keywords3 = self.generator.generate_keywords(keycap_emoji)
-        self.assertEqual(keywords3, [])  # "keycap" removed because it's in the name
+        # "keycap" removed because it's in the name
+        self.assertEqual(keywords3, [])
 
         # Test filtering of "object", "other", "symbol"
         test_emoji = {
@@ -99,7 +104,8 @@ class TestEmojiGenerator(unittest.TestCase):
             "category": "Test"
         }
         keywords4 = self.generator.generate_keywords(test_emoji)
-        self.assertEqual(set(keywords4), {"test", "valid"})  # object, other, symbol filtered out
+        # object, other, symbol filtered out
+        self.assertEqual(set(keywords4), {"test", "valid"})
 
     def test_info_plist_generation(self):
         """Test info.plist XML generation."""
@@ -118,7 +124,8 @@ class TestEmojiGenerator(unittest.TestCase):
     def test_info_plist_xml_escaping(self):
         """Test that prefix and suffix are properly XML escaped."""
         # Test XML characters that need escaping
-        generator_with_xml_chars = EmojiSnippetGenerator(prefix="<&", suffix=">&")
+        generator_with_xml_chars = EmojiSnippetGenerator(
+            prefix="<&", suffix=">&")
         plist_content = generator_with_xml_chars.create_info_plist()
 
         # Should contain escaped versions
@@ -130,7 +137,8 @@ class TestEmojiGenerator(unittest.TestCase):
         self.assertNotIn("<string>>&</string>", plist_content)
 
         # Test quotes and apostrophes - xml.sax.saxutils.escape does NOT escape them
-        generator_with_quotes = EmojiSnippetGenerator(prefix='"test"', suffix="'end'")
+        generator_with_quotes = EmojiSnippetGenerator(
+            prefix='"test"', suffix="'end'")
         plist_content = generator_with_quotes.create_info_plist()
         self.assertIn('<string>"test"</string>', plist_content)
         self.assertIn("<string>'end'</string>", plist_content)
@@ -163,7 +171,8 @@ def run_functionality_test():
         emoji_char = generator.unicode_to_emoji("1F600")
         assert emoji_char == "😀", f"Unicode conversion failed: {emoji_char}"
 
-        snippet = generator.create_snippet("😀", "grinning", "😀 Grinning Face", "GRINNING FACE")
+        snippet = generator.create_snippet(
+            "😀", "grinning", "😀 Grinning Face", "GRINNING FACE")
         assert snippet["alfredsnippet"]["uid"] == "emojipack-grinning-GRINNING_FACE", "UID format incorrect"
         assert snippet["alfredsnippet"]["keyword"] == "grinning", "Keyword format incorrect"
 
