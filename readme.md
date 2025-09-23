@@ -8,25 +8,29 @@ Generate Alfred snippet packs from the iamcal/emoji-data database.
 # Install dependencies
 brew install just uv
 
-# Generate emoji pack
-just generate
-
-# Import into Alfred
-open "Emoji Pack.alfredsnippets"
+# Generate and import emoji pack
+just alfred
 ```
 
 ## Usage
 
 ```sh
-# Generate with default settings
+# Generate and import with default settings
+just alfred
+
+# Generate with default settings (without importing)
 just generate
 
-# Set custom output filename
+# Generate with custom output filename (without importing)
 just generate --output my-emojis.alfredsnippets
 
-# Set initial prefix and suffix for snippet keywords
+# Generate with custom prefix and suffix (without importing)
 just generate --prefix "[" --suffix "]"
 ```
+
+The `just alfred` command only works with default settings and generates "Emoji
+Pack.alfredsnippets". For custom configurations, use `just generate` with your
+desired options, then manually import the generated file.
 
 Alfred snippet packs can be configured to use a common prefix and suffix for all
 snippets keywords. The default prefix and suffix in the Emoji Pack are both `:`

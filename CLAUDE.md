@@ -2,15 +2,19 @@
 
 ## Project Overview
 
-**Emoji Alfred Snippet Generator** - A Python tool that generates Alfred snippet packs from emoji databases, supporting multiple shortcode formats and comprehensive keyword search.
+**Emoji Alfred Snippet Generator** - A Python tool that generates Alfred snippet
+packs from emoji databases, supporting multiple shortcode formats and
+comprehensive keyword search.
 
 ## Quick Context
 
 - **Language**: Python 3.12+
 - **Package Manager**: uv (modern Python package manager)
 - **Main Purpose**: Generate `.alfredsnippets` files for Alfred app on macOS
-- **Data Source**: [iamcal/emoji-data](https://github.com/iamcal/emoji-data) - 3,000+ emojis
-- **Key Features**: Multiple notation styles (`:code:`, custom notation formats), rich keywords, predictable UIDs
+- **Data Source**: [iamcal/emoji-data](https://github.com/iamcal/emoji-data) -
+  3,000+ emojis
+- **Key Features**: Multiple notation styles (`:code:`, custom notation
+  formats), rich keywords, predictable UIDs
 
 ## Project Structure
 
@@ -49,7 +53,9 @@ emojipack/
 - **CLI Interface**: Uses Click for command-line arguments
 
 ### 2. `justfile` (Entry Point)
+
 - **Commands**:
+  - `alfred`: Generate and import default emoji pack into Alfred (no arguments)
   - `generate`: Run emoji generator (delegates all options to Python script)
   - `test`: Execute test suite with dev dependencies
   - `typecheck`: Run mypy type checking
@@ -62,7 +68,8 @@ emojipack/
   - `--output`: Output filename
   - `--max-emojis`: Limit for testing
 
-Example: `just generate --prefix "[" --suffix "]" --output bracket-emoji.alfredsnippets`
+Example:
+`just generate --prefix "[" --suffix "]" --output bracket-emoji.alfredsnippets`
 
 ### 3. `test_runner.py` (Testing)
 
@@ -99,7 +106,9 @@ class AlfredSnippetData(TypedDict):
 
 ### Notation Format
 
-The generator requires both a prefix and suffix to create complete snippet triggers. Some shortcodes are prefixes of others, so both components are necessary for unambiguous matching.
+The generator requires both a prefix and suffix to create complete snippet
+triggers. Some shortcodes are prefixes of others, so both components are
+necessary for unambiguous matching.
 
 Examples:
 
@@ -137,24 +146,33 @@ Examples:
 
 ## Python 3.12+ Requirement
 
-The project requires Python 3.12 or later to support modern Python features including:
+The project requires Python 3.12 or later to support modern Python features
+including:
 
-- **Nested strings in f-strings**: Enables complex string formatting like `f"Hello {f'{name.upper()}'}"` 
-- **Improved error messages**: Better debugging experience with enhanced traceback information
+- **Nested strings in f-strings**: Enables complex string formatting like
+  `f"Hello {f'{name.upper()}'}"`
+- **Improved error messages**: Better debugging experience with enhanced
+  traceback information
 - **Performance improvements**: Faster execution and reduced memory usage
 - **Enhanced type system**: Better static analysis and IDE support
 
 ## Common Tasks
 
 ### Setup and Run
+
 ```bash
-just generate           # Default generation (:code:)
-just generate --prefix "," --suffix "."  # Custom notation (,code.)
-just generate --prefix "[" --suffix "]"  # Custom notation ([code])
+just alfred             # Generate and import default pack (:code:) - recommended
+just generate           # Generate only (without importing)
+just generate --prefix "," --suffix "."   # Custom notation (,code.)
+just generate --prefix "[" --suffix "]"   # Custom notation ([code])
 just test               # Run tests with dev dependencies
 just format             # Format code with autopep8 and isort
 just lint               # Run type checking and formatting
 ```
+
+Note: The `alfred` command only works with default settings and always generates
+"Emoji Pack.alfredsnippets". For custom configurations, use `just generate` with
+desired options.
 
 ### Development
 
@@ -166,6 +184,7 @@ just test
 ## Configuration
 
 ### pyproject.toml Key Sections
+
 - Python 3.12+ requirement
 - Click + requests dependencies
 - Modern `[dependency-groups]` for dev dependencies (PEP 735)
@@ -181,7 +200,8 @@ just test
 
 ## External Dependencies
 
-- **Data Source**: GitHub API `https://raw.githubusercontent.com/iamcal/emoji-data/master/emoji.json`
+- **Data Source**: GitHub API
+  `https://raw.githubusercontent.com/iamcal/emoji-data/master/emoji.json`
 - **Target Platform**: macOS with Alfred Powerpack
 - **Output Format**: Alfred Snippets format (ZIP with JSON + plist)
 
@@ -191,7 +211,11 @@ just test
 - Comprehensive error handling and logging
 - Supports both development and production use cases
 - Well-tested with mock API responses
-- Clean separation of concerns between data fetching, processing, and file generation
-- **Replaced `run.sh` with `justfile`**: Eliminates duplicate option handling by delegating all arguments directly to Python script
-- **Modern task runner**: Uses `just` instead of bash script for better maintainability
-- **Modern dependency management**: Uses `[dependency-groups]` (PEP 735) instead of `[project.optional-dependencies]` for cleaner dev dependency organization
+- Clean separation of concerns between data fetching, processing, and file
+  generation
+- **Replaced `run.sh` with `justfile`**: Eliminates duplicate option handling by
+  delegating all arguments directly to Python script
+- **Modern task runner**: Uses `just` instead of bash script for better
+  maintainability
+- **Modern dependency management**: Uses `[dependency-groups]` (PEP 735) instead
+  of `[project.optional-dependencies]` for cleaner dev dependency organization
