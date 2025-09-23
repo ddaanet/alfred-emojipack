@@ -20,7 +20,7 @@ emojipack/
 ├── README.md                           # Comprehensive user documentation
 ├── pyproject.toml                      # Project configuration, dependencies
 ├── uv.lock                            # Locked dependencies
-├── justfile                           # Main entry point (task runner)
+├── justfile                           # Task runner with modern uv dependency groups
 ├── emoji_alfred_generator.py          # Core generator logic
 ├── test_runner.py                     # Unified test suite
 ├── Emoji Pack.alfredsnippets          # Generated output (if exists)
@@ -49,13 +49,13 @@ emojipack/
 - **CLI Interface**: Uses Click for command-line arguments
 
 ### 2. `justfile` (Entry Point)
-
 - **Commands**:
-  - `setup`: Install uv dependencies, create venv
   - `generate`: Run emoji generator (delegates all options to Python script)
-  - `test`: Execute test suite
+  - `test`: Execute test suite with dev dependencies
+  - `typecheck`: Run mypy type checking
+  - `format`: Run autopep8 and isort formatting
+  - `lint`: Run typecheck and format together
   - `clean`: Remove generated files and caches
-  - `examples`: Show common usage patterns
 - **All Generate Options**: Passed directly to Python script without duplication
   - `--prefix`: Snippet prefix (default: `:`)
   - `--suffix`: Snippet suffix (default: `:`)
@@ -139,12 +139,13 @@ Examples:
 ## Common Tasks
 
 ### Setup and Run
-
 ```bash
 just generate           # Default generation (:code:)
 just generate --prefix "," --suffix "."  # Custom notation (,code.)
 just generate --prefix "[" --suffix "]"  # Custom notation ([code])
-just test               # Run tests
+just test               # Run tests with dev dependencies
+just format             # Format code with autopep8 and isort
+just lint               # Run type checking and formatting
 ```
 
 ### Development
@@ -157,10 +158,11 @@ just test
 ## Configuration
 
 ### pyproject.toml Key Sections
-
 - Python 3.9+ requirement
 - Click + requests dependencies
+- Modern `[dependency-groups]` for dev dependencies (PEP 735)
 - MyPy type checking configuration
+- autopep8 code formatting (default line length)
 - autopep8 code formatting
 
 ### Generated Alfred Files
@@ -184,3 +186,4 @@ just test
 - Clean separation of concerns between data fetching, processing, and file generation
 - **Replaced `run.sh` with `justfile`**: Eliminates duplicate option handling by delegating all arguments directly to Python script
 - **Modern task runner**: Uses `just` instead of bash script for better maintainability
+- **Modern dependency management**: Uses `[dependency-groups]` (PEP 735) instead of `[project.optional-dependencies]` for cleaner dev dependency organization

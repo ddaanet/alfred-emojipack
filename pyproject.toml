@@ -34,15 +34,6 @@ classifiers = [
 [project.scripts]
 emoji-alfred-generator = "emoji_alfred_generator:main"
 
-[project.optional-dependencies]
-dev = [
-    "pytest>=7.0",
-    "pytest-cov",
-    "autopep8",
-    "isort",
-    "mypy",
-]
-
 [tool.isort]
 multi_line_output = 3
 
@@ -55,6 +46,11 @@ disallow_untyped_defs = true
 
 [dependency-groups]
 dev = [
+    "pytest>=7.0",
+    "pytest-cov",
+    "autopep8",
+    "isort",
+    "mypy",
     "types-requests>=2.32.0.20241016",
 ]
 
