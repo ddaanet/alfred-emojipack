@@ -1,5 +1,3 @@
-set shell := ["bash", "-ceuo", "pipefail"]
-
 default:
     @just --list
 
