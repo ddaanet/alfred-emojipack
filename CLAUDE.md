@@ -23,7 +23,6 @@ emojipack/
 ├── run.sh                             # Main entry point script
 ├── emoji_alfred_generator.py          # Core generator logic
 ├── test_runner.py                     # Unified test suite
-├── complete_example.sh                # Example usage script
 ├── Emoji Pack.alfredsnippets          # Generated output (if exists)
 ├── .python-version                    # Python version specification
 ├── .gitignore                         # Git ignore patterns

@@ -18,22 +18,25 @@ Generate Alfred snippet packs from freely available emoji databases with multipl
 - [uv](https://github.com/astral-sh/uv) package manager
 - macOS with Alfred Powerpack
 
+### Installing uv
+
+If you don't have uv installed:
+
+```bash
+brew install uv
+```
+
 ## Quick Start
 
 ```bash
-# Navigate to the project directory
-cd ~/code/emojipack
-
-# Make the script executable
-chmod +x run.sh
-
 # Setup environment and dependencies
 ./run.sh setup
 
 # Generate emoji snippet pack
 ./run.sh generate
 
-# Import Emoji Pack.alfredsnippets into Alfred
+# Import emoji snippet pack into Alfred
+open "Emoji Pack.alfredsnippets"
 ```
 
 ## Usage
@@ -68,8 +71,8 @@ Creates `Emoji Pack.alfredsnippets` with default `:` prefix and suffix.
 # Run complete test suite (functionality + unit tests)
 ./run.sh test
 
-# Or run directly
-python test_runner.py
+# Or run directly with uv
+uv run python test_runner.py
 ```
 
 ### Cleanup
@@ -80,68 +83,70 @@ python test_runner.py
 
 ## Alfred Integration
 
-1. Generate the snippet pack: `./run.sh generate`
-2. Open Alfred Preferences → Features → Snippets
-3. Click the gear icon → Import
-4. Select the generated `.alfredsnippets` file
-5. Enable auto-expansion if desired
+Double click on the generated file, or doing it at the command line:
+
+```bash
+open "Emoji Pack.alfredsnippets"
+```
 
 ## Notation Format
 
-The generator requires both a prefix and suffix to create unambiguous snippet triggers. Some shortcodes are prefixes of others (like `grin` and `grinning`), making both components necessary for proper matching.
+The both a prefix and suffix are needed to create unambiguous snippet triggers.
+Some shortcodes are prefixes of others (like `grin` and `grinning`), so a
+suffix is needed to avoid triggering the shorter keyword when intending to use
+the longer one.
 
 ### Standard Colon Notation `:code:`
+
 The most common emoji notation style:
+
 ```bash
 ./run.sh generate  # Uses default : prefix and : suffix
 ```
 
-| Trigger | Emoji | Name |
-|---------|-------|------|
-| `:grinning:` | 😀 | Grinning Face |
-| `:+1:` | 👍 | Thumbs Up Sign |
-| `:heart:` | ❤️ | Red Heart |
+| Trigger      | Emoji | Name           |
+| ------------ | ----- | -------------- |
+| `:grinning:` | 😀    | Grinning Face  |
+| `:+1:`       | 👍    | Thumbs Up Sign |
+| `:heart:`    | ❤️    | Red Heart      |
 
 ### Custom Notation Examples
 
 Bracket notation:
+
 ```bash
 ./run.sh generate -p "[" -s "]"
 ```
 
-| Trigger | Emoji | Name |
-|---------|-------|------|
-| `[grinning]` | 😀 | Grinning Face |
-| `[+1]` | 👍 | Thumbs Up Sign |
-| `[heart]` | ❤️ | Red Heart |
+| Trigger      | Emoji | Name           |
+| ------------ | ----- | -------------- |
+| `[grinning]` | 😀    | Grinning Face  |
+| `[+1]`       | 👍    | Thumbs Up Sign |
+| `[heart]`    | ❤️    | Red Heart      |
 
 Comma-period notation:
+
 ```bash
 ./run.sh generate -p "," -s "."
 ```
 
-| Trigger | Emoji | Name |
-|---------|-------|------|
-| `,grinning.` | 😀 | Grinning Face |
-| `,+1.` | 👍 | Thumbs Up Sign |
-| `,heart.` | ❤️ | Red Heart |
+| Trigger      | Emoji | Name           |
+| ------------ | ----- | -------------- |
+| `,grinning.` | 😀    | Grinning Face  |
+| `,+1.`       | 👍    | Thumbs Up Sign |
+| `,heart.`    | ❤️    | Red Heart      |
 
 Custom combinations:
+
 ```bash
 ./run.sh generate -p "~" -s "~"  # ~code~
 ./run.sh generate -p "{" -s "}"  # {code}
 ```
 
-## Keywords and Search
-
-Each emoji includes keywords from:
-- **Official Unicode name**: "grinning", "face", "thumbs", "up"
-- **Categories**: "smileys_emotion", "people_body"
-- **All shortcodes**: "grinning", "grinning_face", "+1", "thumbsup"
-
 ## Data Source
 
 Uses the excellent [emoji-data](https://github.com/iamcal/emoji-data) project by Cal Henderson, which provides:
+
 - Complete Unicode emoji coverage
 - Multiple platform shortcodes (GitHub, Slack, etc.)
 - Comprehensive metadata and categorization
@@ -161,8 +166,10 @@ Uses the excellent [emoji-data](https://github.com/iamcal/emoji-data) project by
 ## Generated File Structure
 
 Each `.alfredsnippets` file contains:
+
 - Individual JSON snippet files named `{keyword}-{unicode_name}.json` (e.g., `grinning-GRINNING_FACE.json`)
 - `info.plist` with prefix/suffix configuration
+- UIDs with format `emojipack-{keyword}-{unicode_name}`
 - Clean keywords without embedded prefixes
 
 ## Development
@@ -180,8 +187,12 @@ Each `.alfredsnippets` file contains:
 # Generate with custom notation
 ./run.sh generate -p "," -s "." -m 50
 
-# Manual execution
+# Manual execution with uv
 uv run python emoji_alfred_generator.py --help
+
+# Direct generation with uv
+uv run python emoji_alfred_generator.py --output "my-emoji.alfredsnippets"
+uv run python emoji_alfred_generator.py --prefix "[" --suffix "]" --output "bracket-emoji.alfredsnippets"
 ```
 
 ## License
