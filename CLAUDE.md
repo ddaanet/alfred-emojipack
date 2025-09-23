@@ -23,8 +23,6 @@ emojipack/
 ├── run.sh                             # Main entry point script
 ├── emoji_alfred_generator.py          # Core generator logic
 ├── test_runner.py                     # Unified test suite
-├── analyze_emoji_keys.py              # Data analysis utility
-├── analyze_essential_emoji_keys.py    # Essential fields analysis
 ├── complete_example.sh                # Example usage script
 ├── Emoji Pack.alfredsnippets          # Generated output (if exists)
 ├── .python-version                    # Python version specification
@@ -69,10 +67,6 @@ Example: `./run.sh generate -p "[" -s "]" -o bracket-emoji.alfredsnippets`
 - Tests Unicode conversion, snippet generation, file operations
 - Mock API responses for reliable testing
 - Validates Alfred snippet format
-
-### 4. Analysis Scripts
-- `analyze_emoji_keys.py`: Analyzes emoji data structure
-- `analyze_essential_emoji_keys.py`: Identifies required vs optional fields
 
 ## Key Data Structures
 
