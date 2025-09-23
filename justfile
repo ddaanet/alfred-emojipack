@@ -13,7 +13,7 @@ clean:
     rm -rf *.alfredsnippets __pycache__ .mypy_cache .venv
 
 typecheck:
-    uv run --group dev mypy emoji_alfred_generator.py
+    uv run --group dev mypy *.py
 
 format:
     uv run --group dev autopep8 --in-place *.py

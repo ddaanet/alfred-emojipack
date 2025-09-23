@@ -6,7 +6,7 @@
 
 ## Quick Context
 
-- **Language**: Python 3.9+
+- **Language**: Python 3.12+
 - **Package Manager**: uv (modern Python package manager)
 - **Main Purpose**: Generate `.alfredsnippets` files for Alfred app on macOS
 - **Data Source**: [iamcal/emoji-data](https://github.com/iamcal/emoji-data) - 3,000+ emojis
@@ -136,6 +136,15 @@ Examples:
 - `mypy`: Type checking
 - `types-requests`: Type stubs
 
+## Python 3.12+ Requirement
+
+The project requires Python 3.12 or later to support modern Python features including:
+
+- **Nested strings in f-strings**: Enables complex string formatting like `f"Hello {f'{name.upper()}'}"` 
+- **Improved error messages**: Better debugging experience with enhanced traceback information
+- **Performance improvements**: Faster execution and reduced memory usage
+- **Enhanced type system**: Better static analysis and IDE support
+
 ## Common Tasks
 
 ### Setup and Run
@@ -158,7 +167,7 @@ just test
 ## Configuration
 
 ### pyproject.toml Key Sections
-- Python 3.9+ requirement
+- Python 3.12+ requirement
 - Click + requests dependencies
 - Modern `[dependency-groups]` for dev dependencies (PEP 735)
 - MyPy type checking configuration

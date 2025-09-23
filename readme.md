@@ -56,7 +56,7 @@ the snippet pack.
 
 ## Requirements
 
-- Python 3.8+
+- Python 3.12+
 - macOS with Alfred Powerpack
 - [uv](https://github.com/astral-sh/uv), fast python package manager
 - [just](https://github.com/casey/just), convenient task runner
