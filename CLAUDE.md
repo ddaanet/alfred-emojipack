@@ -129,7 +129,6 @@ Examples:
 
 ### Setup and Run
 ```bash
-just setup              # Initial setup
 just generate           # Default generation (:code:)
 just generate --prefix "," --suffix "."  # Custom notation (,code.)
 just generate --prefix "[" --suffix "]"  # Custom notation ([code])
