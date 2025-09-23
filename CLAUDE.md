@@ -20,7 +20,7 @@ emojipack/
 ├── README.md                           # Comprehensive user documentation
 ├── pyproject.toml                      # Project configuration, dependencies
 ├── uv.lock                            # Locked dependencies
-├── run.sh                             # Main entry point script
+├── justfile                           # Main entry point (task runner)
 ├── emoji_alfred_generator.py          # Core generator logic
 ├── test_runner.py                     # Unified test suite
 ├── Emoji Pack.alfredsnippets          # Generated output (if exists)
@@ -47,19 +47,20 @@ emojipack/
   - `generate_snippets()`: Main generation orchestrator
 - **CLI Interface**: Uses Click for command-line arguments
 
-### 2. `run.sh` (Entry Point)
+### 2. `justfile` (Entry Point)
 - **Commands**:
   - `setup`: Install uv dependencies, create venv
-  - `generate`: Run emoji generator with options
+  - `generate`: Run emoji generator (delegates all options to Python script)
   - `test`: Execute test suite
   - `clean`: Remove generated files and caches
-- **Generate Options**:
-  - `-p/--prefix`: Snippet prefix (default: `:`)
-  - `-s/--suffix`: Snippet suffix (default: `:`)
-  - `-o/--output`: Output filename
-  - `-m/--max-emojis`: Limit for testing
+  - `examples`: Show common usage patterns
+- **All Generate Options**: Passed directly to Python script without duplication
+  - `--prefix`: Snippet prefix (default: `:`)
+  - `--suffix`: Snippet suffix (default: `:`)
+  - `--output`: Output filename
+  - `--max-emojis`: Limit for testing
 
-Example: `./run.sh generate -p "[" -s "]" -o bracket-emoji.alfredsnippets`
+Example: `just generate --prefix "[" --suffix "]" --output bracket-emoji.alfredsnippets`
 
 ### 3. `test_runner.py` (Testing)
 - Comprehensive unittest suite
@@ -128,11 +129,11 @@ Examples:
 
 ### Setup and Run
 ```bash
-./run.sh setup              # Initial setup
-./run.sh generate           # Default generation (:code:)
-./run.sh generate -p "," -s "."  # Custom notation (,code.)
-./run.sh generate -p "[" -s "]"  # Custom notation ([code])
-./run.sh test               # Run tests
+just setup              # Initial setup
+just generate           # Default generation (:code:)
+just generate --prefix "," --suffix "."  # Custom notation (,code.)
+just generate --prefix "[" --suffix "]"  # Custom notation ([code])
+just test               # Run tests
 ```
 
 ### Development
@@ -168,3 +169,5 @@ uv run mypy emoji_alfred_generator.py
 - Supports both development and production use cases
 - Well-tested with mock API responses
 - Clean separation of concerns between data fetching, processing, and file generation
+- **Replaced `run.sh` with `justfile`**: Eliminates duplicate option handling by delegating all arguments directly to Python script
+- **Modern task runner**: Uses `just` instead of bash script for better maintainability

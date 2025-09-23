@@ -17,23 +17,27 @@ Generate Alfred snippet packs from freely available emoji databases with multipl
 - Python 3.8+
 - [uv](https://github.com/astral-sh/uv) package manager
 - macOS with Alfred Powerpack
+- [just](https://github.com/casey/just) task runner
 
-### Installing uv
+### Installing Dependencies
 
-If you don't have uv installed:
+If you don't have the required tools installed:
+
+  - `just` is a handy task runner
+  - `uv` is a fast python package manager
 
 ```bash
-brew install uv
+brew install just uv
 ```
 
 ## Quick Start
 
 ```bash
 # Setup environment and dependencies
-./run.sh setup
+just setup
 
 # Generate emoji snippet pack
-./run.sh generate
+just generate
 
 # Import emoji snippet pack into Alfred
 open "Emoji Pack.alfredsnippets"
@@ -44,7 +48,7 @@ open "Emoji Pack.alfredsnippets"
 ### Basic Generation
 
 ```bash
-./run.sh generate
+just generate
 ```
 
 Creates `Emoji Pack.alfredsnippets` with default `:` prefix and suffix.
@@ -53,32 +57,42 @@ Creates `Emoji Pack.alfredsnippets` with default `:` prefix and suffix.
 
 ```bash
 # Use bracket notation
-./run.sh generate -p "[" -s "]" -o bracket-emoji.alfredsnippets
+just generate --prefix "[" --suffix "]" --output bracket-emoji.alfredsnippets
 
 # Use colon prefix and suffix (default)
-./run.sh generate -p ":" -s ":" -o colon-emoji.alfredsnippets
+just generate --prefix ":" --suffix ":" --output colon-emoji.alfredsnippets
 
 # Use custom notation
-./run.sh generate -p "," -s "." -o custom-emoji.alfredsnippets
+just generate --prefix "," --suffix "." --output custom-emoji.alfredsnippets
 
 # Limit emojis for testing
-./run.sh generate -m 100 -o test-emoji.alfredsnippets
+just generate --max-emojis 100 --output test-emoji.alfredsnippets
 ```
 
 ### Testing
 
 ```bash
 # Run complete test suite (functionality + unit tests)
-./run.sh test
+just test
 
 # Or run directly with uv
 uv run python test_runner.py
 ```
 
-### Cleanup
+### Other Commands
 
 ```bash
-./run.sh clean
+# Clean up generated files and caches
+just clean
+
+# Show available commands
+just
+
+# Show usage examples
+just examples
+
+# Get help for generate command options
+just generate --help
 ```
 
 ## Alfred Integration
@@ -101,7 +115,7 @@ the longer one.
 The most common emoji notation style:
 
 ```bash
-./run.sh generate  # Uses default : prefix and : suffix
+just generate  # Uses default : prefix and : suffix
 ```
 
 | Trigger      | Emoji | Name           |
@@ -115,7 +129,7 @@ The most common emoji notation style:
 Bracket notation:
 
 ```bash
-./run.sh generate -p "[" -s "]"
+just generate --prefix "[" --suffix "]"
 ```
 
 | Trigger      | Emoji | Name           |
@@ -127,7 +141,7 @@ Bracket notation:
 Comma-period notation:
 
 ```bash
-./run.sh generate -p "," -s "."
+just generate --prefix "," --suffix "."
 ```
 
 | Trigger      | Emoji | Name           |
@@ -139,8 +153,8 @@ Comma-period notation:
 Custom combinations:
 
 ```bash
-./run.sh generate -p "~" -s "~"  # ~code~
-./run.sh generate -p "{" -s "}"  # {code}
+just generate --prefix "~" --suffix "~"  # ~code~
+just generate --prefix "{" --suffix "}"  # {code}
 ```
 
 ## Data Source
@@ -151,17 +165,6 @@ Uses the excellent [emoji-data](https://github.com/iamcal/emoji-data) project by
 - Multiple platform shortcodes (GitHub, Slack, etc.)
 - Comprehensive metadata and categorization
 - Regular updates with new Unicode releases
-
-## Project Structure
-
-```
-~/code/emojipack/
-├── emoji_alfred_generator.py    # Main generator script
-├── test_runner.py              # Unified test suite
-├── run.sh                      # Setup and run script
-├── pyproject.toml             # Project configuration
-└── README.md                  # Documentation
-```
 
 ## Generated File Structure
 
@@ -176,16 +179,16 @@ Each `.alfredsnippets` file contains:
 
 ```bash
 # Setup development environment
-./run.sh setup
+just setup
 
 # Run tests
-./run.sh test
+just test
 
 # Generate with debug limiting
-./run.sh generate -m 50
+just generate --max-emojis 50
 
 # Generate with custom notation
-./run.sh generate -p "," -s "." -m 50
+just generate --prefix "," --suffix "." --max-emojis 50
 
 # Manual execution with uv
 uv run python emoji_alfred_generator.py --help
