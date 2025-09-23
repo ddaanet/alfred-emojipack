@@ -51,7 +51,7 @@ class AlfredSnippetWithName(AlfredSnippet, total=False):
 
 
 class EmojiSnippetGenerator:
-    def __init__(self, prefix: str = ";", suffix: str = ""):
+    def __init__(self, prefix: str = ":", suffix: str = ":"):
         self.prefix: str = prefix
         self.suffix: str = suffix
         self.emoji_data: list[EmojiData] = []
@@ -173,10 +173,10 @@ class EmojiSnippetGenerator:
 
 
 @click.command()
-@click.option("--prefix", "-p", default=";",
-              help="Prefix for snippet keywords (default: ';')")
-@click.option("--suffix", "-s", default="",
-              help="Suffix for snippet keywords (default: '')")
+@click.option("--prefix", "-p", default=":",
+              help="Prefix for snippet keywords (default: ':')")
+@click.option("--suffix", "-s", default=":",
+              help="Suffix for snippet keywords (default: ':')")
 @click.option("--output", "-o", type=click.Path(),
               default="emoji-snippets.alfredsnippets",
               help="Output filename (default: emoji-snippets.alfredsnippets)")

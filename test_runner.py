@@ -19,7 +19,7 @@ class TestEmojiGenerator(unittest.TestCase):
 
     def setUp(self):
         """Set up test fixtures."""
-        self.generator = EmojiSnippetGenerator(prefix=";", suffix="")
+        self.generator = EmojiSnippetGenerator()
         self.sample_emoji_data = [
             {
                 "name": "GRINNING FACE",
@@ -107,12 +107,13 @@ class TestEmojiGenerator(unittest.TestCase):
         plist_content = self.generator.create_info_plist()
         self.assertIn("snippetkeywordprefix", plist_content)
         self.assertIn("snippetkeywordsuffix", plist_content)
-        self.assertIn("<string>;</string>", plist_content)
-
-        # Custom settings
-        custom_generator = EmojiSnippetGenerator(prefix=":", suffix=":")
-        plist_content = custom_generator.create_info_plist()
         self.assertEqual(plist_content.count("<string>:</string>"), 2)
+
+        # Comma-dot alternative notation
+        comma_dot_generator = EmojiSnippetGenerator(prefix=",", suffix=".")
+        plist_content = comma_dot_generator.create_info_plist()
+        self.assertIn("<string>,</string>", plist_content)
+        self.assertIn("<string>.</string>", plist_content)
 
     def test_info_plist_xml_escaping(self):
         """Test that prefix and suffix are properly XML escaped."""
@@ -156,7 +157,7 @@ def run_functionality_test():
     print("Running functionality test...")
 
     try:
-        generator = EmojiSnippetGenerator(prefix=";")
+        generator = EmojiSnippetGenerator()
 
         # Test basic functions
         emoji_char = generator.unicode_to_emoji("1F600")
@@ -168,6 +169,8 @@ def run_functionality_test():
 
         plist = generator.create_info_plist()
         assert "snippetkeywordprefix" in plist, "Info.plist missing prefix"
+        assert "snippetkeywordsuffix" in plist, "Info.plist missing suffix"
+        assert plist.count('<string>:</string>') == 2
 
         print("✓ All functionality tests passed!")
         return True

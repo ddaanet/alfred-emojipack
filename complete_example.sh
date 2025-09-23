@@ -28,30 +28,21 @@ uv run python test_runner.py
 # Step 4: Generate snippet pack with different configurations
 echo "Generating emoji snippet packs..."
 
-# Default configuration (semicolon prefix, no suffix)
+# Default configuration (colon prefix and suffix)
 uv run python emoji_alfred_generator.py \
-    --prefix ";" \
-    --suffix "" \
     --output "default-emoji.alfredsnippets"
 
-# Slack-style colon prefix and suffix
+# Bracket notation
 uv run python emoji_alfred_generator.py \
-    --prefix ":" \
-    --suffix ":" \
-    --output "slack-style-emoji.alfredsnippets"
+    --prefix "[" --suffix "]" --output "bracket-emoji.alfredsnippets"
 
-# GitHub-style semicolon prefix only
+# Custom notation
 uv run python emoji_alfred_generator.py \
-    --prefix ";" \
-    --suffix "" \
-    --output "github-style-emoji.alfredsnippets"
+    --prefix "," --suffix "." --output "comma-dot-emoji.alfredsnippets"
 
 # Test with limited emojis
 uv run python emoji_alfred_generator.py \
-    --prefix ";" \
-    --suffix "" \
-    --max-emojis 100 \
-    --output "test-emoji.alfredsnippets"
+    --max-emojis 100 --output "test-emoji.alfredsnippets"
 
 echo "=== Generated Files ==="
 ls -la *.alfredsnippets
@@ -66,11 +57,14 @@ echo "5. Enable auto-expansion if desired"
 echo ""
 echo "=== Usage Examples ==="
 echo "After importing, you can use snippets like:"
-echo "  ;grinning → 😀 (with default settings)"
-echo "  ;+1 → 👍 (with default settings)"
-echo "  ;heart → ❤️ (with default settings)"
-echo "  :rocket: → 🚀 (with Slack-style prefix/suffix)"
-echo "  :thumbsup: → 👍 (with Slack-style prefix/suffix)"
+echo "  :grinning: → 😀 (with default settings)"
+echo "  :+1: → 👍 (with default settings)"
+echo "  :heart: → ❤️ (with default settings)"
+echo "  [rocket] → 🚀 (with bracket notation)"
+echo "  [thumbsup] → 👍 (with bracket notation)"
+echo "  ,grinning. → 😀 (with comma-dot notation)"
+echo "  ,+1. → 👍 (with comma-dot notation)"
+echo "  ,heart. → ❤️ (with custom notation)"
 
 echo ""
 echo "✓ Complete setup finished!"

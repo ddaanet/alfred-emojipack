@@ -18,16 +18,16 @@ Commands:
     help        Show this help
 
 Generate Options:
-    -p, --prefix PREFIX     Snippet keyword prefix (default: ';')
-    -s, --suffix SUFFIX     Snippet keyword suffix (default: '')
+    -p, --prefix PREFIX     Snippet keyword prefix (default: ':')
+    -s, --suffix SUFFIX     Snippet keyword suffix (default: ':')
     -o, --output FILE       Output filename (default: emoji-snippets.alfredsnippets)
     -m, --max-emojis N      Limit number of emojis for testing
 
 Examples:
     $0 setup
     $0 generate
-    $0 generate -p ":" -s ":" -o slack-emoji.alfredsnippets
-    $0 generate -p ";" -s "" -o github-emoji.alfredsnippets
+    $0 generate -p ":" -s ":" -o colon-emoji.alfredsnippets
+    $0 generate -p "[" -s "]" -o bracket-emoji.alfredsnippets
     $0 test
 EOF
 }
@@ -53,8 +53,8 @@ setup() {
 }
 
 generate() {
-    local prefix=";"
-    local suffix=""
+    local prefix=":"
+    local suffix=":"
     local output="emoji-snippets.alfredsnippets"
     local max_emojis=""
 
