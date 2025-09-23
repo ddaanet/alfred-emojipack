@@ -9,6 +9,7 @@ Creates multiple shortcuts for emojis with multiple shortcodes.
 import json
 import sys
 import tempfile
+import textwrap
 import zipfile
 from pathlib import Path
 from typing import TypedDict, cast
@@ -131,17 +132,18 @@ class EmojiSnippetGenerator:
 
     def create_info_plist(self) -> str:
         """Create info.plist content with prefix and suffix settings."""
-        plist_content = f'''<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-\t<key>snippetkeywordprefix</key>
-\t<string>{self.prefix}</string>
-\t<key>snippetkeywordsuffix</key>
-\t<string>{self.suffix}</string>
-</dict>
-</plist>'''
-        return plist_content
+        return textwrap.dedent(f"""
+            <?xml version="1.0" encoding="UTF-8"?>
+            <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+            <plist version="1.0">
+            <dict>
+            	<key>snippetkeywordprefix</key>
+            	<string>{self.prefix}</string>
+            	<key>snippetkeywordsuffix</key>
+            	<string>{self.suffix}</string>
+            </dict>
+            </plist>
+            """).strip()
 
     def create_alfred_snippet_pack(self, snippets: list[AlfredSnippetWithName],
                                  output_path: Path) -> None:
