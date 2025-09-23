@@ -5,11 +5,16 @@ Generate Alfred snippet packs from freely available emoji databases with multipl
 ## Features
 
 - **Comprehensive Emoji Database**: Uses `iamcal/emoji-data` with 3,000+ emojis
-- **Multiple Shortcodes**: Creates separate snippets for each emoji shortcode (GitHub, Slack compatible)
-- **Custom Notation Formats**: Supports any prefix+suffix combination (both required)
-- **Rich Keywords**: Includes official Unicode names, categories, and all known shortcodes
-- **Predictable UIDs**: Uses format `emojipack-{keyword}-{unicode_name}` with spaces replaced by underscores
-- **Customizable Prefix/Suffix**: Configure snippet triggers via info.plist (default: `:` prefix and suffix, supports custom notation)
+- **Multiple Shortcodes**: Creates separate snippets for each emoji shortcode
+  (GitHub, Slack compatible)
+- **Custom Notation Formats**: Supports any prefix+suffix combination (both
+  required)
+- **Rich Keywords**: Includes official Unicode names, categories, and
+  shortcodes
+- **Predictable UIDs**: Uses format `emojipack-{keyword}-{unicode_name}` with
+  spaces replaced by underscores
+- **Customizable Prefix/Suffix**: Configure snippet triggers via info.plist
+  (default: `:` prefix and suffix, supports custom notation)
 - **Alfred Format**: Generates proper `.alfredsnippets` files for direct import
 
 ## Requirements
@@ -23,19 +28,16 @@ Generate Alfred snippet packs from freely available emoji databases with multipl
 
 If you don't have the required tools installed:
 
-  - `just` is a handy task runner
-  - `uv` is a fast python package manager
+- `just` is a handy task runner
+- `uv` is a fast python package manager
 
-```bash
+```sh
 brew install just uv
 ```
 
 ## Quick Start
 
-```bash
-# Setup environment and dependencies
-just setup
-
+```sh
 # Generate emoji snippet pack
 just generate
 
@@ -47,7 +49,7 @@ open "Emoji Pack.alfredsnippets"
 
 ### Basic Generation
 
-```bash
+```sh
 just generate
 ```
 
@@ -55,12 +57,17 @@ Creates `Emoji Pack.alfredsnippets` with default `:` prefix and suffix.
 
 ### Custom Configuration
 
-```bash
+Both a prefix and a suffix are needed to create unambiguous snippet triggers.
+Some shortcodes are prefixes of others (like `grin` and `grinning`), so a
+suffix is needed to avoid triggering the shorter keyword when intending to use
+the longer one.
+
+You can configure the affix in Alfred Preferences. But you can also set it
+when generating the snippet pack using the `--prefix` and `--suffix` options.
+
+```sh
 # Use bracket notation
 just generate --prefix "[" --suffix "]" --output bracket-emoji.alfredsnippets
-
-# Use colon prefix and suffix (default)
-just generate --prefix ":" --suffix ":" --output colon-emoji.alfredsnippets
 
 # Use custom notation
 just generate --prefix "," --suffix "." --output custom-emoji.alfredsnippets
@@ -69,52 +76,23 @@ just generate --prefix "," --suffix "." --output custom-emoji.alfredsnippets
 just generate --max-emojis 100 --output test-emoji.alfredsnippets
 ```
 
-### Testing
-
-```bash
-# Run complete test suite (functionality + unit tests)
-just test
-
-# Or run directly with uv
-uv run python test_runner.py
-```
-
 ### Other Commands
 
-```bash
-# Clean up generated files and caches
-just clean
-
+```sh
 # Show available commands
 just
-
-# Show usage examples
-just examples
 
 # Get help for generate command options
 just generate --help
 ```
 
-## Alfred Integration
-
-Double click on the generated file, or doing it at the command line:
-
-```bash
-open "Emoji Pack.alfredsnippets"
-```
-
 ## Notation Format
-
-The both a prefix and suffix are needed to create unambiguous snippet triggers.
-Some shortcodes are prefixes of others (like `grin` and `grinning`), so a
-suffix is needed to avoid triggering the shorter keyword when intending to use
-the longer one.
 
 ### Standard Colon Notation `:code:`
 
 The most common emoji notation style:
 
-```bash
+```sh
 just generate  # Uses default : prefix and : suffix
 ```
 
@@ -128,7 +106,7 @@ just generate  # Uses default : prefix and : suffix
 
 Bracket notation:
 
-```bash
+```sh
 just generate --prefix "[" --suffix "]"
 ```
 
@@ -140,7 +118,7 @@ just generate --prefix "[" --suffix "]"
 
 Comma-period notation:
 
-```bash
+```sh
 just generate --prefix "," --suffix "."
 ```
 
@@ -149,13 +127,6 @@ just generate --prefix "," --suffix "."
 | `,grinning.` | 😀    | Grinning Face  |
 | `,+1.`       | 👍    | Thumbs Up Sign |
 | `,heart.`    | ❤️    | Red Heart      |
-
-Custom combinations:
-
-```bash
-just generate --prefix "~" --suffix "~"  # ~code~
-just generate --prefix "{" --suffix "}"  # {code}
-```
 
 ## Data Source
 
@@ -174,29 +145,6 @@ Each `.alfredsnippets` file contains:
 - `info.plist` with prefix/suffix configuration
 - UIDs with format `emojipack-{keyword}-{unicode_name}`
 - Clean keywords without embedded prefixes
-
-## Development
-
-```bash
-# Setup development environment
-just setup
-
-# Run tests
-just test
-
-# Generate with debug limiting
-just generate --max-emojis 50
-
-# Generate with custom notation
-just generate --prefix "," --suffix "." --max-emojis 50
-
-# Manual execution with uv
-uv run python emoji_alfred_generator.py --help
-
-# Direct generation with uv
-uv run python emoji_alfred_generator.py --output "my-emoji.alfredsnippets"
-uv run python emoji_alfred_generator.py --prefix "[" --suffix "]" --output "bracket-emoji.alfredsnippets"
-```
 
 ## License
 
