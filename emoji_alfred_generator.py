@@ -8,7 +8,6 @@ Creates multiple shortcuts for emojis with multiple shortcodes.
 
 import json
 import sys
-import tempfile
 import textwrap
 import zipfile
 from pathlib import Path
@@ -150,11 +149,9 @@ class EmojiSnippetGenerator:
     def create_alfred_snippet_pack(self, snippets: list[AlfredSnippetWithName],
                                  output_path: Path) -> None:
         """Create the .alfredsnippets file."""
-        with tempfile.TemporaryDirectory() as temp_dir:
-            temp_path = Path(temp_dir)
-
-            # Create individual JSON files for each snippet
-            json_files: list[str] = []
+        # Create ZIP file directly using writestr
+        with zipfile.ZipFile(output_path, "w", zipfile.ZIP_DEFLATED) as zf:
+            # Add individual JSON files for each snippet
             for snippet in snippets:
                 keyword = snippet["alfredsnippet"]["keyword"]
                 unicode_name = snippet.get("_unicode_name", keyword.upper())
@@ -163,31 +160,16 @@ class EmojiSnippetGenerator:
                 clean_unicode_name = unicode_name.strip().replace(" ", "_")
                 filename = f"{keyword}-{clean_unicode_name}.json"
 
-                file_path = temp_path / filename
-
                 # Remove temporary _unicode_name field before saving
                 clean_snippet = {key: value for key, value in snippet.items() if key != "_unicode_name"}
 
-                with file_path.open("w", encoding="utf-8") as f:
-                    json.dump(clean_snippet, f, ensure_ascii=False, indent=2)
+                # Create JSON content and write directly to zip
+                json_content = json.dumps(clean_snippet, ensure_ascii=False, indent=2)
+                zf.writestr(filename, json_content)
 
-                json_files.append(filename)
-
-            # Create info.plist file
+            # Create and add info.plist file
             info_plist_content = self.create_info_plist()
-            info_plist_path = temp_path / "info.plist"
-            with info_plist_path.open("w", encoding="utf-8") as f:
-                _ = f.write(info_plist_content)
-
-            # Create ZIP file
-            with zipfile.ZipFile(output_path, "w", zipfile.ZIP_DEFLATED) as zf:
-                # Add all JSON snippet files
-                for json_file in json_files:
-                    file_path = temp_path / json_file
-                    zf.write(file_path, json_file)
-
-                # Add info.plist
-                zf.write(info_plist_path, "info.plist")
+            zf.writestr("info.plist", info_plist_content)
 
 
 @click.command()
