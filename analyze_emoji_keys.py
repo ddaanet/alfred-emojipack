@@ -4,35 +4,37 @@ Emoji Data Key Analysis Script
 
 Analyzes emoji.json from iamcal/emoji-data to identify which keys are always present
 and which are optional in the emoji data structure.
+
+Note: This script contains intentional type: ignore comments for JSON data handling.
+The remaining mypy warnings about 'Any' types are inherent to analyzing arbitrary
+JSON structures and are acceptable for this analysis tool.
 """
 
-import json
 from collections import Counter
-from typing import Any, Dict, List, Set
-
 import requests
 
 
-def fetch_emoji_data() -> List[Dict[str, Any]]:
+def fetch_emoji_data() -> list[dict[str, object]]:
     """Fetch emoji data from iamcal/emoji-data repository."""
     url = "https://raw.githubusercontent.com/iamcal/emoji-data/master/emoji.json"
     print(f"Fetching emoji data from: {url}")
     response = requests.get(url, timeout=30)
     response.raise_for_status()
-    return response.json()
+    # JSON response returns Any - unavoidable for dynamic data analysis
+    return response.json()  # type: ignore[no-any-return, return-value]
 
 
-def analyze_keys(emoji_data: List[Dict[str, Any]]) -> None:
+def analyze_keys(emoji_data: list[dict[str, object]]) -> None:
     """Analyze keys in emoji data to identify required vs optional fields."""
     total_emojis = len(emoji_data)
     print(f"Analyzing {total_emojis} emoji entries...\n")
 
     # Count occurrences of each key
-    key_counts = Counter()
-    all_keys: Set[str] = set()
+    key_counts: Counter[str] = Counter()
+    all_keys: set[str] = set()
 
     # Track value types for each key
-    key_types: Dict[str, Set[str]] = {}
+    key_types: dict[str, set[str]] = {}
 
     for emoji in emoji_data:
         emoji_keys = emoji.keys()
@@ -53,11 +55,13 @@ def analyze_keys(emoji_data: List[Dict[str, Any]]) -> None:
                 else:  # Empty list
                     key_types[key].add("list[empty]")
             else:
-                key_types[key].add(type(value).__name__)
+                # Dynamic type inspection - inherently involves unknown types
+                type_name = type(value).__name__
+                key_types[key].add(type_name)  # type: ignore[arg-type, misc]
 
     # Categorize keys
-    always_present = []
-    sometimes_present = []
+    always_present: list[tuple[str, int, float, list[str]]] = []
+    sometimes_present: list[tuple[str, int, float, list[str]]] = []
 
     for key in sorted(all_keys):
         count = key_counts[key]
