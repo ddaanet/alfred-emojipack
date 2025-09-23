@@ -90,7 +90,7 @@ class EmojiSnippetGenerator:
     def unicode_to_emoji(self, unified: str) -> str:
         """Convert unified Unicode codepoint to emoji character."""
         if not unified:
-            return ""
+            raise ValueError("Unicode input cannot be empty")
 
         # Handle multiple codepoints separated by hyphens
         codepoints = unified.split("-")
@@ -99,8 +99,8 @@ class EmojiSnippetGenerator:
         for cp in codepoints:
             try:
                 chars.append(chr(int(cp, 16)))
-            except (ValueError, OverflowError):
-                return ""
+            except (ValueError, OverflowError) as e:
+                raise ValueError(f"Invalid Unicode codepoint: {cp}") from e
 
         return "".join(chars)
 
@@ -111,8 +111,6 @@ class EmojiSnippetGenerator:
 
         for emoji in self.emoji_data:
             emoji_char = self.unicode_to_emoji(emoji["unified"])
-            if not emoji_char:
-                continue
 
             # Generate keywords for this emoji
             keywords = self.generate_keywords(emoji)
