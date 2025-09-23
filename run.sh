@@ -20,7 +20,7 @@ Commands:
 Generate Options:
     -p, --prefix PREFIX     Snippet keyword prefix (default: ':')
     -s, --suffix SUFFIX     Snippet keyword suffix (default: ':')
-    -o, --output FILE       Output filename (default: emoji-snippets.alfredsnippets)
+    -o, --output FILE       Output filename (default: Emoji Pack.alfredsnippets)
     -m, --max-emojis N      Limit number of emojis for testing
 
 Examples:
@@ -55,7 +55,7 @@ setup() {
 generate() {
     local prefix=":"
     local suffix=":"
-    local output="emoji-snippets.alfredsnippets"
+    local output="Emoji Pack.alfredsnippets"
     local max_emojis=""
 
     # Parse options

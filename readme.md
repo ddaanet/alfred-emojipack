@@ -33,7 +33,7 @@ chmod +x run.sh
 # Generate emoji snippet pack
 ./run.sh generate
 
-# Import emoji-snippets.alfredsnippets into Alfred
+# Import Emoji Pack.alfredsnippets into Alfred
 ```
 
 ## Usage
@@ -44,7 +44,7 @@ chmod +x run.sh
 ./run.sh generate
 ```
 
-Creates `emoji-snippets.alfredsnippets` with default `:` prefix and suffix.
+Creates `Emoji Pack.alfredsnippets` with default `:` prefix and suffix.
 
 ### Custom Configuration
 

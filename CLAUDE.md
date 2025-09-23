@@ -26,7 +26,7 @@ emojipack/
 ├── analyze_emoji_keys.py              # Data analysis utility
 ├── analyze_essential_emoji_keys.py    # Essential fields analysis
 ├── complete_example.sh                # Example usage script
-├── emoji-snippets.alfredsnippets      # Generated output (if exists)
+├── Emoji Pack.alfredsnippets          # Generated output (if exists)
 ├── .python-version                    # Python version specification
 ├── .gitignore                         # Git ignore patterns
 ├── .venv/                            # Virtual environment (created by uv)

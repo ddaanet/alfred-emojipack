@@ -178,8 +178,8 @@ class EmojiSnippetGenerator:
 @click.option("--suffix", "-s", default=":",
               help="Suffix for snippet keywords (default: ':')")
 @click.option("--output", "-o", type=click.Path(),
-              default="emoji-snippets.alfredsnippets",
-              help="Output filename (default: emoji-snippets.alfredsnippets)")
+              default="Emoji Pack.alfredsnippets",
+              help="Output filename (default: Emoji Pack.alfredsnippets)")
 @click.option("--max-emojis", "-m", type=int,
               help="Maximum number of emojis to process (for testing)")
 @click.option("--debug", "-d", is_flag=True, help="Enable debug mode for tracebacks.")
