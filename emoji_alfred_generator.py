@@ -17,8 +17,12 @@ import click
 import requests
 
 
-class EmojiData(TypedDict, total=False):
-    """Structure for emoji data from the API."""
+class EmojiData(TypedDict):
+    """Structure for emoji data from the API.
+
+    Based on analysis, all these fields are always present and never empty
+    in the iamcal/emoji-data dataset.
+    """
     unified: str
     name: str
     category: str
@@ -58,28 +62,11 @@ class EmojiSnippetGenerator:
         response.raise_for_status()
         return cast(list[EmojiData], response.json())
 
-    def generate_keywords(self, emoji: EmojiData) -> set[str]:
-        """Generate keywords for an emoji based on name, category, and shortcodes."""
-        keywords: set[str] = set()
-
-        # Add official name words (lowercased, no punctuation)
-        name_words = emoji.get("name", "").lower().replace("_", " ").split()
-        keywords.update(word.strip(".,!?:;") for word in name_words if word.strip(".,!?:;"))
-
-        # Add category and subcategory
-        category = emoji.get("category", "")
-        if category:
-            keywords.add(category.lower().replace(" ", "_"))
-
-        subcategory = emoji.get("subcategory", "")
-        if subcategory:
-            keywords.add(subcategory.lower().replace(" ", "_"))
-
-        # Add all shortcodes as keywords
-        short_names = emoji.get("short_names", [])
-        keywords.update(short_names)
-
-        return keywords
+    def generate_keywords(self, emoji: EmojiData) -> list[str]:
+        """Generate keywords for an emoji based on name and category."""
+        all_keywords = emoji["subcategory"].split("-")
+        name_words = set(emoji['name'].lower().split())
+        return [kw for kw in all_keywords if kw not in name_words]
 
     def create_snippet(self, emoji_char: str, keyword: str, name: str, unicode_name: str) -> AlfredSnippetWithName:
         """Create a single Alfred snippet structure."""
@@ -121,30 +108,21 @@ class EmojiSnippetGenerator:
         snippets: list[AlfredSnippetWithName] = []
 
         for emoji in self.emoji_data:
-            unified = emoji.get("unified", "")
-            if not unified:
-                continue
-
-            emoji_char = self.unicode_to_emoji(unified)
+            emoji_char = self.unicode_to_emoji(emoji["unified"])
             if not emoji_char:
                 continue
 
             # Generate keywords for this emoji
             keywords = self.generate_keywords(emoji)
 
-            # Get shortcodes
-            short_names = emoji.get("short_names", [])
-            if not short_names:
-                continue
-
             # Create a snippet for each shortcode
-            for short_name in short_names:
-                name = emoji.get("name", short_name).title()
-                unicode_name = emoji.get("name", short_name)
+            for short_name in emoji["short_names"]:
+                name = emoji["name"].title()
+                unicode_name = emoji["name"]
                 snippet = self.create_snippet(
                     emoji_char=emoji_char,
                     keyword=short_name,
-                    name=f"{emoji_char} {name}",
+                    name=', '.join([f"{emoji_char} {name}"] + keywords),
                     unicode_name=unicode_name
                 )
                 snippets.append(snippet)
