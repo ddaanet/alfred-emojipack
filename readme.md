@@ -1,157 +1,66 @@
 # Emoji Alfred Snippet Generator
 
-Generate Alfred snippet packs from freely available emoji databases with multiple shortcodes and comprehensive keyword support. Requires both prefix and suffix for proper shortcode disambiguation.
-
-## Features
-
-- **Comprehensive Emoji Database**: Uses `iamcal/emoji-data` with 3,000+ emojis
-- **Multiple Shortcodes**: Creates separate snippets for each emoji shortcode
-  (GitHub, Slack compatible)
-- **Custom Notation Formats**: Supports any prefix+suffix combination (both
-  required)
-- **Rich Keywords**: Includes official Unicode names, categories, and
-  shortcodes
-- **Predictable UIDs**: Uses format `emojipack-{keyword}-{unicode_name}` with
-  spaces replaced by underscores
-- **Customizable Prefix/Suffix**: Configure snippet triggers via info.plist
-  (default: `:` prefix and suffix, supports custom notation)
-- **Alfred Format**: Generates proper `.alfredsnippets` files for direct import
-
-## Requirements
-
-- Python 3.8+
-- [uv](https://github.com/astral-sh/uv) package manager
-- macOS with Alfred Powerpack
-- [just](https://github.com/casey/just) task runner
-
-### Installing Dependencies
-
-If you don't have the required tools installed:
-
-- `just` is a handy task runner
-- `uv` is a fast python package manager
-
-```sh
-brew install just uv
-```
+Generate Alfred snippet packs from the iamcal/emoji-data database.
 
 ## Quick Start
 
 ```sh
-# Generate emoji snippet pack
+# Install dependencies
+brew install just uv
+
+# Generate emoji pack
 just generate
 
-# Import emoji snippet pack into Alfred
+# Import into Alfred
 open "Emoji Pack.alfredsnippets"
 ```
 
 ## Usage
 
-### Basic Generation
-
 ```sh
+# Generate with default settings
 just generate
-```
 
-Creates `Emoji Pack.alfredsnippets` with default `:` prefix and suffix.
+# Set custom output filename
+just generate --output my-emojis.alfredsnippets
 
-### Custom Configuration
-
-Both a prefix and a suffix are needed to create unambiguous snippet triggers.
-Some shortcodes are prefixes of others (like `grin` and `grinning`), so a
-suffix is needed to avoid triggering the shorter keyword when intending to use
-the longer one.
-
-You can configure the affix in Alfred Preferences. But you can also set it
-when generating the snippet pack using the `--prefix` and `--suffix` options.
-
-```sh
-# Use bracket notation
-just generate --prefix "[" --suffix "]" --output bracket-emoji.alfredsnippets
-
-# Use custom notation
-just generate --prefix "," --suffix "." --output custom-emoji.alfredsnippets
-
-# Limit emojis for testing
-just generate --max-emojis 100 --output test-emoji.alfredsnippets
-```
-
-### Other Commands
-
-```sh
-# Show available commands
-just
-
-# Get help for generate command options
-just generate --help
-```
-
-## Notation Format
-
-### Standard Colon Notation `:code:`
-
-The most common emoji notation style:
-
-```sh
-just generate  # Uses default : prefix and : suffix
-```
-
-| Trigger      | Emoji | Name           |
-| ------------ | ----- | -------------- |
-| `:grinning:` | 😀    | Grinning Face  |
-| `:+1:`       | 👍    | Thumbs Up Sign |
-| `:heart:`    | ❤️    | Red Heart      |
-
-### Custom Notation Examples
-
-Bracket notation:
-
-```sh
+# Set initial prefix and suffix for snippet keywords
 just generate --prefix "[" --suffix "]"
 ```
 
-| Trigger      | Emoji | Name           |
-| ------------ | ----- | -------------- |
-| `[grinning]` | 😀    | Grinning Face  |
-| `[+1]`       | 👍    | Thumbs Up Sign |
-| `[heart]`    | ❤️    | Red Heart      |
+Alfred snippet packs can be configured to use a common prefix and suffix for all
+snippets keywords. The default prefix and suffix in the Emoji Pack are both `:`
+(colon notation like `:grinning:`).
 
-Comma-period notation:
+The `--prefix` and `--suffix` options set the initial values for the Alfred
+snippet keywords. The common prefix and suffix can be configured in the Alfred
+snippet pack preferences after importing.
 
-```sh
-just generate --prefix "," --suffix "."
-```
+Both a prefix and suffix are required for shortcode disambiguation. Some
+shortcodes are prefixes of others (like `grin` and `grinning`), so a suffix
+prevents triggering the shorter keyword when typing the longer one.
 
-| Trigger      | Emoji | Name           |
-| ------------ | ----- | -------------- |
-| `,grinning.` | 😀    | Grinning Face  |
-| `,+1.`       | 👍    | Thumbs Up Sign |
-| `,heart.`    | ❤️    | Red Heart      |
+## Features
 
-## Data Source
+- 3,000+ emojis from [emoji-data](https://github.com/iamcal/emoji-data)
+- Multiple shortcodes per emoji (GitHub, Slack compatible)
+- Rich keywords from Unicode names and categories
+- Stable UIDs preserve Alfred's selection intelligence
+- Generates `.alfredsnippets` format
 
-Uses the excellent [emoji-data](https://github.com/iamcal/emoji-data) project by Cal Henderson, which provides:
+Each emoji snippet uses a stable UID format:
+`emojipack-{keyword}-{unicode_name}`. The UID is used by Alfred to remember
+which item was selected when multiple results match your query. Using stable
+UIDs ensures you don't lose Alfred's selection intelligence when regenerating
+the snippet pack.
 
-- Complete Unicode emoji coverage
-- Multiple platform shortcodes (GitHub, Slack, etc.)
-- Comprehensive metadata and categorization
-- Regular updates with new Unicode releases
+## Requirements
 
-## Generated File Structure
-
-Each `.alfredsnippets` file contains:
-
-- Individual JSON snippet files named `{keyword}-{unicode_name}.json` (e.g., `grinning-GRINNING_FACE.json`)
-- `info.plist` with prefix/suffix configuration
-- UIDs with format `emojipack-{keyword}-{unicode_name}`
-- Clean keywords without embedded prefixes
+- Python 3.8+
+- macOS with Alfred Powerpack
+- [uv](https://github.com/astral-sh/uv), fast python package manager
+- [just](https://github.com/casey/just), convenient task runner
 
 ## License
 
-MIT License - see project files for details.
-
-## Credits
-
-- [emoji-data](https://github.com/iamcal/emoji-data) by Cal Henderson
-- [Alfred](https://www.alfredapp.com/) by Running with Crayons
-- Emoji artwork by respective platform vendors
+MIT License
