@@ -16,7 +16,7 @@ typecheck:
     uv run --group dev mypy emoji_alfred_generator.py
 
 format:
-    uv run --group dev autopep8 --in-place *.py && uv run --group dev isort *.py
+    uv run --group dev autopep8 --in-place *.py
+    uv run --group dev isort *.py
 
 lint: typecheck format
-    @echo "✓ Done"
