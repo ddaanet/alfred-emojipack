@@ -35,6 +35,7 @@ emojipack/
 ## Core Components
 
 ### 1. `emoji_alfred_generator.py` (Main Script)
+
 - **Classes**:
   - `EmojiData` (TypedDict): API data structure
   - `AlfredSnippet*` (TypedDict): Alfred snippet structures
@@ -48,6 +49,7 @@ emojipack/
 - **CLI Interface**: Uses Click for command-line arguments
 
 ### 2. `justfile` (Entry Point)
+
 - **Commands**:
   - `setup`: Install uv dependencies, create venv
   - `generate`: Run emoji generator (delegates all options to Python script)
@@ -63,6 +65,7 @@ emojipack/
 Example: `just generate --prefix "[" --suffix "]" --output bracket-emoji.alfredsnippets`
 
 ### 3. `test_runner.py` (Testing)
+
 - Comprehensive unittest suite
 - Tests Unicode conversion, snippet generation, file operations
 - Mock API responses for reliable testing
@@ -71,6 +74,7 @@ Example: `just generate --prefix "[" --suffix "]" --output bracket-emoji.alfreds
 ## Key Data Structures
 
 ### Emoji Data (from API)
+
 ```python
 class EmojiData(TypedDict):
     unified: str        # Unicode code points (e.g., "1F600")
@@ -81,6 +85,7 @@ class EmojiData(TypedDict):
 ```
 
 ### Alfred Snippet Structure
+
 ```python
 class AlfredSnippetData(TypedDict):
     snippet: str           # The emoji character
@@ -93,13 +98,16 @@ class AlfredSnippetData(TypedDict):
 ## Common Patterns
 
 ### Notation Format
+
 The generator requires both a prefix and suffix to create complete snippet triggers. Some shortcodes are prefixes of others, so both components are necessary for unambiguous matching.
 
 Examples:
+
 - **Standard colon notation**: `:grinning:` (default, most common)
 - **Custom notation**: `[grinning]`, `,grinning.`, `{grinning}`, etc.
 
 ### File Generation Process
+
 1. Fetch emoji data from GitHub API
 2. Convert Unicode codes to emoji characters
 3. Generate multiple snippets per emoji (one per shortcode)
@@ -108,6 +116,7 @@ Examples:
 6. Generate `info.plist` with prefix/suffix configuration
 
 ### Keywords and Search
+
 - Unicode name words: "grinning", "face"
 - Category/subcategory: "smileys_emotion", "face_smiling"
 - All shortcodes: "grinning", "grinning_face", "+1", "thumbsup"
@@ -115,10 +124,12 @@ Examples:
 ## Dependencies
 
 ### Production
+
 - `click>=8.0`: Command-line interface
 - `requests>=2.25`: HTTP requests for emoji data
 
 ### Development
+
 - `pytest>=7.0`: Testing framework
 - `autopep8`: Code formatting
 - `isort`: Import sorting
@@ -128,6 +139,7 @@ Examples:
 ## Common Tasks
 
 ### Setup and Run
+
 ```bash
 just generate           # Default generation (:code:)
 just generate --prefix "," --suffix "."  # Custom notation (,code.)
@@ -136,21 +148,23 @@ just test               # Run tests
 ```
 
 ### Development
+
 ```bash
-uv run python emoji_alfred_generator.py --help
-uv run python test_runner.py
-uv run mypy emoji_alfred_generator.py
+just lint
+just test
 ```
 
 ## Configuration
 
 ### pyproject.toml Key Sections
+
 - Python 3.9+ requirement
 - Click + requests dependencies
 - MyPy type checking configuration
 - autopep8 code formatting
 
 ### Generated Alfred Files
+
 - Individual JSON snippets: `{keyword}-{unicode_name}.json`
 - Configuration: `info.plist` with prefix/suffix settings
 - Package format: ZIP file with `.alfredsnippets` extension
