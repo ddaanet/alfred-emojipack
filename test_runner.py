@@ -114,19 +114,30 @@ class TestEmojiGenerator(unittest.TestCase):
         plist_content = custom_generator.create_info_plist()
         self.assertEqual(plist_content.count("<string>:</string>"), 2)
 
-    def test_prefix_suffix_handling(self):
-        """Test that prefix/suffix are handled via info.plist."""
-        generator = EmojiSnippetGenerator(prefix="!", suffix="?")
+    def test_info_plist_xml_escaping(self):
+        """Test that prefix and suffix are properly XML escaped."""
+        # Test XML characters that need escaping
+        generator_with_xml_chars = EmojiSnippetGenerator(prefix="<&", suffix=">&")
+        plist_content = generator_with_xml_chars.create_info_plist()
 
-        snippet = generator.create_snippet("😀", "test", "Test", "TEST")
+        # Should contain escaped versions
+        self.assertIn("<string>&lt;&amp;</string>", plist_content)
+        self.assertIn("<string>&gt;&amp;</string>", plist_content)
 
-        # Keywords should be clean
-        self.assertEqual(snippet["alfredsnippet"]["keyword"], "test")
+        # Should not contain unescaped versions
+        self.assertNotIn("<string><&</string>", plist_content)
+        self.assertNotIn("<string>>&</string>", plist_content)
 
-        # Prefix/suffix in info.plist
-        plist_content = generator.create_info_plist()
-        self.assertIn("<string>!</string>", plist_content)
-        self.assertIn("<string>?</string>", plist_content)
+        # Test quotes and apostrophes - xml.sax.saxutils.escape does NOT escape them
+        generator_with_quotes = EmojiSnippetGenerator(prefix='"test"', suffix="'end'")
+        plist_content = generator_with_quotes.create_info_plist()
+        self.assertIn('<string>"test"</string>', plist_content)
+        self.assertIn("<string>'end'</string>", plist_content)
+
+        # Test empty values
+        generator_empty = EmojiSnippetGenerator(prefix="", suffix="")
+        plist_content = generator_empty.create_info_plist()
+        self.assertEqual(plist_content.count("<string></string>"), 2)
 
     @patch('requests.get')
     def test_emoji_data_fetch(self, mock_get):

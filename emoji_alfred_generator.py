@@ -13,6 +13,7 @@ import textwrap
 import zipfile
 from pathlib import Path
 from typing import TypedDict, cast
+from xml.sax.saxutils import escape
 
 import click
 import requests
@@ -139,9 +140,9 @@ class EmojiSnippetGenerator:
             <plist version="1.0">
             <dict>
             	<key>snippetkeywordprefix</key>
-            	<string>{self.prefix}</string>
+            	<string>{escape(self.prefix)}</string>
             	<key>snippetkeywordsuffix</key>
-            	<string>{self.suffix}</string>
+            	<string>{escape(self.suffix)}</string>
             </dict>
             </plist>
             """).strip()
