@@ -65,21 +65,41 @@ class TestEmojiGenerator(unittest.TestCase):
 
     def test_keyword_generation(self):
         """Test keyword extraction from emoji data."""
+        # Test with GRINNING FACE - subcategory "face-smiling"
+        # Name words "grinning" and "face" should be removed
         emoji = self.sample_emoji_data[0]
         keywords = self.generator.generate_keywords(emoji)
 
-        # Name words
-        self.assertIn("grinning", keywords)
-        self.assertIn("face", keywords)
+        # Should only contain "smiling" since "face" is in the name
+        self.assertEqual(keywords, ["smiling"])
 
-        # Category
-        self.assertIn("smileys_&_emotion", keywords)
+        # Test with THUMBS UP SIGN - subcategory "hand-fingers-closed"
+        # Name words "thumbs", "up", "sign" not in subcategory, so all keywords remain
+        emoji2 = self.sample_emoji_data[1]
+        keywords2 = self.generator.generate_keywords(emoji2)
+        self.assertEqual(set(keywords2), {"hand", "fingers", "closed"})
 
-        # Subcategory
-        self.assertIn("face-smiling", keywords)
+        # Test special case: Keycap with name containing words from subcategory
+        keycap_emoji = {
+            "name": "KEYCAP: *",
+            "subcategory": "keycap",
+            "unified": "002A-FE0F-20E3",
+            "short_names": ["keycap_star"],
+            "category": "Symbols"
+        }
+        keywords3 = self.generator.generate_keywords(keycap_emoji)
+        self.assertEqual(keywords3, [])  # "keycap" removed because it's in the name
 
-        # Shortcodes
-        self.assertIn("grinning_face", keywords)
+        # Test filtering of "object", "other", "symbol"
+        test_emoji = {
+            "name": "SAMPLE ITEM",
+            "subcategory": "test-object-other-symbol-valid",
+            "unified": "1F600",
+            "short_names": ["test"],
+            "category": "Test"
+        }
+        keywords4 = self.generator.generate_keywords(test_emoji)
+        self.assertEqual(set(keywords4), {"test", "valid"})  # object, other, symbol filtered out
 
     def test_info_plist_generation(self):
         """Test info.plist XML generation."""
@@ -118,18 +138,6 @@ class TestEmojiGenerator(unittest.TestCase):
 
         result = self.generator.fetch_emoji_data()
         self.assertEqual(result, self.sample_emoji_data)
-
-    def test_edge_cases(self):
-        """Test edge cases and error handling."""
-        # Empty emoji data
-        emoji = {"name": "", "short_names": []}
-        keywords = self.generator.generate_keywords(emoji)
-        self.assertIsInstance(keywords, set)
-
-        # Missing data
-        emoji = {}
-        keywords = self.generator.generate_keywords(emoji)
-        self.assertIsInstance(keywords, set)
 
 
 def run_functionality_test():

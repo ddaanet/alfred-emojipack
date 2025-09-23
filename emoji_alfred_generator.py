@@ -66,8 +66,9 @@ class EmojiSnippetGenerator:
     def generate_keywords(self, emoji: EmojiData) -> list[str]:
         """Generate keywords for an emoji based on name and category."""
         all_keywords = emoji["subcategory"].split("-")
-        name_words = set(emoji['name'].lower().split())
-        return [kw for kw in all_keywords if kw not in name_words]
+        name_words = set(w.strip(':') for w in emoji['name'].lower().split())
+        skip_words = name_words | {'object', 'other', 'symbol'}
+        return [kw for kw in all_keywords if kw not in skip_words]
 
     def create_snippet(self, emoji_char: str, keyword: str, name: str, unicode_name: str) -> AlfredSnippetWithName:
         """Create a single Alfred snippet structure."""
