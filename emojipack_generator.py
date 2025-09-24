@@ -2,8 +2,10 @@
 """
 Emoji Alfred Snippet Pack Generator
 
-Generates Alfred snippet packs from freely available emoji databases.
-Creates multiple shortcuts for emojis with multiple shortcodes.
+Generates Alfred snippet packs from the iamcal/emoji-data repository
+(https://github.com/iamcal/emoji-data), a comprehensive dataset of 3,000+
+emojis with Unicode data, categories, and shortcodes. Creates multiple
+snippets for emojis with multiple shortcodes.
 """
 
 import json
@@ -195,15 +197,11 @@ def main(prefix: str, suffix: str, output: str,
     try:
         click.echo("Fetching emoji data...")
         generator = EmojiSnippetGenerator(prefix=prefix, suffix=suffix)
-
         snippets = generator.generate_snippets()
-
         if max_emojis:
             snippets = snippets[:max_emojis]
-
         output_path = Path(output)
         generator.create_alfred_snippet_pack(snippets, output_path)
-
         click.echo(
             f"✓ Created {output_path} with {len(snippets)} emoji snippets")
     except BrokenPipeError:
