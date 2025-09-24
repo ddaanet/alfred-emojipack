@@ -13,11 +13,12 @@ test:
 clean:
     rm -rf *.alfredsnippets __pycache__ .mypy_cache .venv
 
-typecheck:
+check:
+    uv run --group dev pycodestyle *.py
     uv run --group dev mypy *.py
 
 format:
     uv run --group dev autopep8 --in-place *.py
     uv run --group dev isort *.py
 
-lint: typecheck format
+lint: format check

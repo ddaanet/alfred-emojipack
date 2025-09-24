@@ -58,9 +58,9 @@ emojipack/
   - `alfred`: Generate and import default emoji pack into Alfred (no arguments)
   - `generate`: Run emoji generator (delegates all options to Python script)
   - `test`: Execute test suite with dev dependencies
-  - `typecheck`: Run mypy type checking
+  - `check`: Run pycodestyle and mypy checking
   - `format`: Run autopep8 and isort formatting
-  - `lint`: Run typecheck and format together
+  - `lint`: Run format and check together
   - `clean`: Remove generated files and caches
 - **All Generate Options**: Passed directly to Python script without duplication
   - `--prefix`: Snippet prefix (default: `:`)
@@ -142,6 +142,7 @@ Examples:
 - `autopep8`: Code formatting
 - `isort`: Import sorting
 - `mypy`: Type checking
+- `pycodestyle`: PEP 8 style checking
 - `types-requests`: Type stubs
 
 ## Python 3.12+ Requirement
@@ -167,7 +168,7 @@ just generate --prefix "," --suffix "."   # Custom notation (,code.)
 just generate --prefix "[" --suffix "]"   # Custom notation ([code])
 just test               # Run tests with dev dependencies
 just format             # Format code with autopep8 and isort
-just lint               # Run type checking and formatting
+just lint               # Run formatting, style checking, and type checking
 ```
 
 Note: The `alfred` command only works with default settings and always generates

@@ -39,6 +39,7 @@ dev = [
     "autopep8",
     "isort",
     "mypy",
+    "pycodestyle",
     "types-requests>=2.32.0.20241016",
     "types-click>=7.1.8",
 ]
