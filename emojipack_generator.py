@@ -58,7 +58,8 @@ class EmojiSnippetGenerator:
 
     def fetch_emoji_data(self) -> list[EmojiData]:
         """Fetch emoji data from iamcal/emoji-data repository."""
-        url = "https://raw.githubusercontent.com/iamcal/emoji-data/master/emoji.json"
+        url = ("https://raw.githubusercontent.com/iamcal/emoji-data/master/"
+               "emoji.json")
         response = requests.get(url, timeout=30)
         response.raise_for_status()
         return cast(list[EmojiData], response.json())
@@ -70,7 +71,8 @@ class EmojiSnippetGenerator:
         skip_words = name_words | {'object', 'other', 'symbol'}
         return [kw for kw in all_keywords if kw not in skip_words]
 
-    def create_snippet(self, emoji_char: str, keyword: str, name: str, unicode_name: str) -> AlfredSnippetWithName:
+    def create_snippet(self, emoji_char: str, keyword: str,
+                       name: str, unicode_name: str) -> AlfredSnippetWithName:
         """Create a single Alfred snippet structure."""
         # Replace spaces with underscores in unicode_name for UID
         clean_unicode_name = unicode_name.replace(" ", "_")
@@ -131,15 +133,16 @@ class EmojiSnippetGenerator:
 
     def create_info_plist(self) -> str:
         """Create info.plist content with prefix and suffix settings."""
+        dtd_url = "http://www.apple.com/DTDs/PropertyList-1.0.dtd"
         return textwrap.dedent(f"""
             <?xml version="1.0" encoding="UTF-8"?>
-            <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+            <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "{dtd_url}">
             <plist version="1.0">
             <dict>
-            	<key>snippetkeywordprefix</key>
-            	<string>{escape(self.prefix)}</string>
-            	<key>snippetkeywordsuffix</key>
-            	<string>{escape(self.suffix)}</string>
+                <key>snippetkeywordprefix</key>
+                <string>{escape(self.prefix)}</string>
+                <key>snippetkeywordsuffix</key>
+                <string>{escape(self.suffix)}</string>
             </dict>
             </plist>
             """).strip()
@@ -160,7 +163,8 @@ class EmojiSnippetGenerator:
 
                 # Remove temporary _unicode_name field before saving
                 clean_snippet = {
-                    key: value for key, value in snippet.items() if key != "_unicode_name"}
+                    key: value for key,
+                    value in snippet.items() if key != "_unicode_name"}
 
                 # Create JSON content and write directly to zip
                 json_content = json.dumps(
@@ -182,8 +186,10 @@ class EmojiSnippetGenerator:
               help="Output filename (default: Emoji Pack.alfredsnippets)")
 @click.option("--max-emojis", "-m", type=int,
               help="Maximum number of emojis to process (for testing)")
-@click.option("--debug", "-d", is_flag=True, help="Enable debug mode for tracebacks.")
-def main(prefix: str, suffix: str, output: str, max_emojis: int, debug: bool) -> None:
+@click.option("--debug", "-d", is_flag=True,
+              help="Enable debug mode for tracebacks.")
+def main(prefix: str, suffix: str, output: str,
+         max_emojis: int, debug: bool) -> None:
     """Generate Alfred emoji snippet pack from emoji database."""
     try:
         click.echo("Fetching emoji data...")
@@ -204,7 +210,8 @@ def main(prefix: str, suffix: str, output: str, max_emojis: int, debug: bool) ->
         click.echo(
             f"✓ Created {output_path} with {len(snippets)} emoji snippets")
         click.echo(
-            "Import this file into Alfred via Preferences > Features > Snippets")
+            "Import this file into Alfred via Preferences > "
+            "Features > Snippets")
     except BrokenPipeError:
         click.secho("Broken pipe", fg="red", bold=True, err=True)
     except Exception as e:

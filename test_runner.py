@@ -224,7 +224,8 @@ class TestEndToEnd(BaseTestCase):
     """End-to-end integration tests."""
 
     @patch('emojipack_generator.EmojiSnippetGenerator.fetch_emoji_data')
-    def test_complete_snippet_pack_generation(self, mock_fetch: MagicMock) -> None:
+    def test_complete_snippet_pack_generation(
+            self, mock_fetch: MagicMock) -> None:
         """Complete snippet pack generation works correctly."""
         mock_fetch.return_value = self.sample_emoji_data
 
