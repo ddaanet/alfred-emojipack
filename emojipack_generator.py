@@ -7,6 +7,7 @@ Creates multiple shortcuts for emojis with multiple shortcodes.
 """
 
 import json
+import shlex
 import sys
 import textwrap
 import zipfile
@@ -195,23 +196,16 @@ def main(prefix: str, suffix: str, output: str,
         click.echo("Fetching emoji data...")
         generator = EmojiSnippetGenerator(prefix=prefix, suffix=suffix)
 
-        click.echo("Generating snippets...")
         snippets = generator.generate_snippets()
 
         if max_emojis:
             snippets = snippets[:max_emojis]
 
-        click.echo(f"Generated {len(snippets)} emoji snippets")
-
         output_path = Path(output)
-        click.echo(f"Creating Alfred snippet pack: {output_path}")
         generator.create_alfred_snippet_pack(snippets, output_path)
 
         click.echo(
             f"✓ Created {output_path} with {len(snippets)} emoji snippets")
-        click.echo(
-            "Import this file into Alfred via Preferences > "
-            "Features > Snippets")
     except BrokenPipeError:
         click.secho("Broken pipe", fg="red", bold=True, err=True)
     except Exception as e:
