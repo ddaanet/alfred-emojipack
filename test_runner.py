@@ -11,7 +11,7 @@ import zipfile
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from emoji_alfred_generator import EmojiData, EmojiSnippetGenerator
+from emojipack_generator import EmojiData, EmojiSnippetGenerator
 
 
 class BaseTestCase(unittest.TestCase):
@@ -223,7 +223,7 @@ class TestDataFetching(BaseTestCase):
 class TestEndToEnd(BaseTestCase):
     """End-to-end integration tests."""
 
-    @patch('emoji_alfred_generator.EmojiSnippetGenerator.fetch_emoji_data')
+    @patch('emojipack_generator.EmojiSnippetGenerator.fetch_emoji_data')
     def test_complete_snippet_pack_generation(self, mock_fetch: MagicMock) -> None:
         """Complete snippet pack generation works correctly."""
         mock_fetch.return_value = self.sample_emoji_data

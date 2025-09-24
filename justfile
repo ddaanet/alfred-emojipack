@@ -2,7 +2,7 @@ default:
     @just --list
 
 generate *ARGS:
-    uv run python emoji_alfred_generator.py {{ ARGS }}
+    uv run python emojipack_generator.py {{ ARGS }}
 
 alfred: generate
     open "Emoji Pack.alfredsnippets"

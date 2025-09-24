@@ -25,7 +25,7 @@ emojipack/
 ├── pyproject.toml                      # Project configuration, dependencies
 ├── uv.lock                            # Locked dependencies
 ├── justfile                           # Task runner with modern uv dependency groups
-├── emoji_alfred_generator.py          # Core generator logic
+├── emojipack_generator.py             # Core generator logic
 ├── test_runner.py                     # Unified test suite
 ├── Emoji Pack.alfredsnippets          # Generated output (if exists)
 ├── .python-version                    # Python version specification
@@ -38,7 +38,7 @@ emojipack/
 
 ## Core Components
 
-### 1. `emoji_alfred_generator.py` (Main Script)
+### 1. `emojipack_generator.py` (Main Script)
 
 - **Classes**:
   - `EmojiData` (TypedDict): API data structure
