@@ -3,11 +3,11 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "emoji-alfred-generator"
+name = "alfred-emojipack"
 version = "1.0.0"
-description = "Generate Alfred emoji snippet packs from freely available emoji databases"
+description = "Generate Alfred emoji snippet packs"
 authors = [
-    {name = "Generated", email = "generated@example.com"}
+    {name = "David Allouche", email = "david@ddaa.net"}
 ]
 license = {text = "MIT"}
 readme = "README.md"
@@ -18,7 +18,7 @@ dependencies = [
 ]
 keywords = ["alfred", "emoji", "snippets", "productivity"]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Environment :: Console",
     "Intended Audience :: End Users/Desktop",
     "License :: OSI Approved :: MIT License",
@@ -30,10 +30,11 @@ classifiers = [
 ]
 
 [project.scripts]
-emoji-alfred-generator = "emoji_alfred_generator:main"
+alfred-emojipack-generator = "emoji_alfred_generator:main"
 
 [tool.isort]
 multi_line_output = 3
+overwrite_in_place = true
 
 [tool.mypy]
 python_version = "3.12"
@@ -51,6 +52,6 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/example/emoji-alfred-generator"
-Repository = "https://github.com/example/emoji-alfred-generator"
-Issues = "https://github.com/example/emoji-alfred-generator/issues"
+Homepage = "https://emojipack.ddaa.net/"
+Repository = "https://github.com/ddaanet/alfred-emojipack.git"
+Issues = "https://github.com/ddaanet/alfred-emojipack/issues"
